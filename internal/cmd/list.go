@@ -40,6 +40,7 @@ This command permit to print the output as a JSON string and interact with this 
 		output, _ := command.Flags().GetString("output")
 		query, _ := command.Flags().GetString("query")
 		jq, _ := command.Flags().GetString("jq")
+		states, _ := command.Flags().GetStringArray("states")
 
 		list.NewListMilestones(list.ListMilestonesConfig{
 			Query:   query,
@@ -47,6 +48,7 @@ This command permit to print the output as a JSON string and interact with this 
 			First:   first,
 			Jq:      jq,
 			Output:  output,
+			States:  states,
 		}).Execute()
 	},
 }

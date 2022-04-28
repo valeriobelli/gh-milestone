@@ -22,7 +22,7 @@ var query struct {
 	Repository struct {
 		Milestones struct {
 			Nodes []github_entities.Milestone
-		} `graphql:"milestones(first: $first, orderBy: $orderBy, query: $query)"`
+		} `graphql:"milestones(first: $first, orderBy: $orderBy, query: $query, states: $states)"`
 	} `graphql:"repository(name: $name, owner: $owner)"`
 }
 
@@ -37,6 +37,7 @@ type ListMilestonesConfig struct {
 	OrderBy MilestonesOrderBy
 	Output  string
 	Query   string
+	States  []string
 }
 
 type ListMilestones struct {
@@ -65,8 +66,9 @@ func (l ListMilestones) Execute() {
 			Direction: githubv4.OrderDirection(l.config.OrderBy.Direction),
 			Field:     githubv4.MilestoneOrderField(l.config.OrderBy.Field),
 		},
-		"owner": githubv4.String(strings.TrimSpace(repoInfo.Owner)),
-		"query": githubv4.String(l.config.Query),
+		"owner":  githubv4.String(strings.TrimSpace(repoInfo.Owner)),
+		"query":  githubv4.String(l.config.Query),
+		"states": l.getStates(),
 	})
 
 	if err != nil {
@@ -81,7 +83,7 @@ func (l ListMilestones) Execute() {
 	case "json":
 		l.printMilestonesAsJson(milestones)
 	case "table":
-		l.printMilestonesAsTable(milestones)
+		fallthrough
 	default:
 		l.printMilestonesAsTable(milestones)
 	}
@@ -156,4 +158,14 @@ func (l ListMilestones) printColoredNumber(milestone github_entities.Milestone) 
 	}
 
 	return green.Sprintf("#%d", milestone.Number)
+}
+
+func (l ListMilestones) getStates() []githubv4.MilestoneState {
+	mappedSlice := make([]githubv4.MilestoneState, len(l.config.States))
+
+	for idx, state := range l.config.States {
+		mappedSlice[idx] = githubv4.MilestoneState(state)
+	}
+
+	return mappedSlice
 }
