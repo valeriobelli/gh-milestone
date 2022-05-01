@@ -9,54 +9,54 @@ import (
 	"github.com/valeriobelli/gh-milestones/internal/pkg/application/view"
 )
 
-var web bool
-
-var viewMilestoneShort string = `Display the milestone informations. 
+func NewViewCommand() *cobra.Command {
+	viewCommand := &cobra.Command{
+		Use: "view",
+		Short: `Display the milestone informations. 
 
 With '--web', open the pull request in a web browser instead.
-`
+		`,
+		Run: func(command *cobra.Command, args []string) {
+			if len(args) == 0 {
+				command.Help()
 
-var viewCommand = &cobra.Command{
-	Use:   "view",
-	Short: viewMilestoneShort,
-	Run: func(command *cobra.Command, args []string) {
-		if len(args) == 0 {
-			command.Help()
+				return
+			}
 
-			return
-		}
+			milestoneNumber, err := strconv.Atoi(args[0])
 
-		milestoneNumber, err := strconv.Atoi(args[0])
+			if err != nil {
+				fmt.Println(err.Error())
 
-		if err != nil {
-			fmt.Println(err.Error())
+				return
+			}
 
-			return
-		}
+			web, _ := command.Flags().GetBool("web")
 
-		web, _ := command.Flags().GetBool("web")
+			view.NewViewMilestone(view.ViewMilestoneConfig{
+				Web: web,
+			}).Execute(milestoneNumber)
+		},
+		Args: func(cmd *cobra.Command, args []string) error {
+			if len(args) < 1 {
+				return nil
+			}
 
-		view.NewViewMilestone(view.ViewMilestoneConfig{
-			Web: web,
-		}).Execute(milestoneNumber)
-	},
-	Args: func(cmd *cobra.Command, args []string) error {
-		if len(args) < 1 {
+			_, err := strconv.Atoi(args[0])
+
+			if err != nil {
+				return errors.New("A numeric identifier is needed to view a milestone's information")
+			}
+
 			return nil
-		}
+		},
+	}
 
-		_, err := strconv.Atoi(args[0])
+	viewCommand.Flags().BoolP("web", "w", false, "View milestone on the browser")
 
-		if err != nil {
-			return errors.New("A numeric identifier is needed to view a milestone's information")
-		}
-
-		return nil
-	},
+	return viewCommand
 }
 
 func init() {
-	viewCommand.Flags().BoolVarP(&web, "web", "w", false, "View milestone on the browser")
-
-	rootCommand.AddCommand(viewCommand)
+	rootCommand.AddCommand(NewViewCommand())
 }

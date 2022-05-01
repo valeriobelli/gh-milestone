@@ -11,13 +11,14 @@ import (
 	"github.com/valeriobelli/gh-milestones/internal/pkg/infrastructure/gh"
 	"github.com/valeriobelli/gh-milestones/internal/pkg/infrastructure/github"
 	"github.com/valeriobelli/gh-milestones/internal/pkg/infrastructure/http"
+	"github.com/valeriobelli/gh-milestones/internal/pkg/infrastructure/spinner"
 )
 
 type EditMilestoneConfig struct {
-	DueOn       *time.Time
+	Description *string
+	DueDate     *time.Time
 	State       *string
 	Title       *string
-	Description *string
 	Verbose     bool
 }
 
@@ -64,6 +65,10 @@ func (em EditMilestone) Execute(number int) {
 
 	client := github.NewRestClient(http.NewClient())
 
+	spinner := spinner.NewSpinner()
+
+	spinner.Start()
+
 	milestone, _, err := client.Issues.EditMilestone(
 		context.Background(),
 		repoInfo.Owner,
@@ -71,11 +76,13 @@ func (em EditMilestone) Execute(number int) {
 		number,
 		&ghub.Milestone{
 			Description: em.config.Description,
-			DueOn:       em.config.DueOn,
+			DueOn:       em.config.DueDate,
 			State:       em.config.State,
 			Title:       em.config.Title,
 		},
 	)
+
+	spinner.Stop()
 
 	if err != nil {
 		fmt.Println(err.Error())
@@ -89,5 +96,9 @@ func (em EditMilestone) Execute(number int) {
 		fmt.Printf("  Description: %s\n", em.mapDescription(milestone))
 		fmt.Printf("  State: %s\n", strings.ToLower(*milestone.State))
 		fmt.Printf("  Due On: %s\n", em.mapDueOn(milestone))
+
+		return
 	}
+
+	fmt.Println("Milestone has been edited.")
 }

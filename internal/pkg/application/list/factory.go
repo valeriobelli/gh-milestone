@@ -15,6 +15,7 @@ import (
 	"github.com/valeriobelli/gh-milestones/internal/pkg/infrastructure/gh"
 	"github.com/valeriobelli/gh-milestones/internal/pkg/infrastructure/github"
 	"github.com/valeriobelli/gh-milestones/internal/pkg/infrastructure/http"
+	"github.com/valeriobelli/gh-milestones/internal/pkg/infrastructure/spinner"
 	tw "github.com/valeriobelli/gh-milestones/internal/pkg/infrastructure/tableWriter"
 )
 
@@ -59,6 +60,10 @@ func (l ListMilestones) Execute() {
 
 	client := github.NewGraphQlClient(http.NewClient())
 
+	spinner := spinner.NewSpinner()
+
+	spinner.Start()
+
 	err = client.Query(context.Background(), &query, map[string]interface{}{
 		"first": githubv4.Int(l.config.First),
 		"name":  githubv4.String(strings.TrimSpace(repoInfo.Name)),
@@ -70,6 +75,8 @@ func (l ListMilestones) Execute() {
 		"query":  githubv4.String(l.config.Query),
 		"states": l.getStates(),
 	})
+
+	spinner.Stop()
 
 	if err != nil {
 		fmt.Printf(err.Error())

@@ -15,11 +15,12 @@ import (
 	"github.com/valeriobelli/gh-milestones/internal/pkg/infrastructure/gh"
 	"github.com/valeriobelli/gh-milestones/internal/pkg/infrastructure/github"
 	"github.com/valeriobelli/gh-milestones/internal/pkg/infrastructure/http"
+	"github.com/valeriobelli/gh-milestones/internal/pkg/infrastructure/spinner"
 )
 
 var query struct {
 	Repository struct {
-		github_entities.Milestone `graphql:"milestone(number: $number)"`
+		*github_entities.Milestone `graphql:"milestone(number: $number)"`
 	} `graphql:"repository(name: $name, owner: $owner)"`
 }
 
@@ -46,11 +47,17 @@ func (vm ViewMilestone) Execute(number int) {
 
 	client := github.NewGraphQlClient(http.NewClient())
 
+	spinner := spinner.NewSpinner()
+
+	spinner.Start()
+
 	err = client.Query(context.Background(), &query, map[string]interface{}{
 		"name":   githubv4.String(strings.TrimSpace(repoInfo.Name)),
 		"number": githubv4.Int(number),
 		"owner":  githubv4.String(strings.TrimSpace(repoInfo.Owner)),
 	})
+
+	spinner.Stop()
 
 	if err != nil {
 		fmt.Println(err.Error())
@@ -60,13 +67,19 @@ func (vm ViewMilestone) Execute(number int) {
 
 	milestone := query.Repository.Milestone
 
-	if vm.config.Web {
-		vm.openUrl(milestone)
+	if milestone == nil {
+		fmt.Println("Requested milestone does not exist.")
 
 		return
 	}
 
-	vm.printConsole(milestone)
+	if vm.config.Web {
+		vm.openUrl(*milestone)
+
+		return
+	}
+
+	vm.printConsole(*milestone)
 }
 
 func (vm ViewMilestone) mapTitle(milestone github_entities.Milestone) string {
