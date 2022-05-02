@@ -1,6 +1,6 @@
 package main
 
-import "github.com/valeriobelli/gh-milestones/internal/cmd"
+import "github.com/valeriobelli/gh-milestone/internal/cmd"
 
 func main() {
 	cmd.Execute()

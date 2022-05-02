@@ -1,11 +1,11 @@
-# gh milestones
+# gh milestone
 
-A [gh](https://github.com/cli/cli) extension for interacting with Github Milestons
+A [gh](https://github.com/cli/cli) extension for managing Github Milestones
 
 ## Installation
 
 ```bash
-gh extension install valeriobelli/gh-milestones
+gh extension install valeriobelli/gh-milestone
 ```
 
 ## Usage
@@ -13,17 +13,17 @@ gh extension install valeriobelli/gh-milestones
 List milestones
 
 ```bash
-gh milestones list
+gh milestone list
 ```
 
 Edit a milestone
 
 ```bash
-gh milestones edit <milestone number> --title="New title"
+gh milestone edit <milestone number> --title "New title"
 ```
 
 View a milestone
 
 ```bash
-gh milestones view <milestone number>
+gh milestone view <milestone number>
 ```

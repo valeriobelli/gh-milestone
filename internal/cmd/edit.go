@@ -7,8 +7,8 @@ import (
 	"time"
 
 	"github.com/spf13/cobra"
-	"github.com/valeriobelli/gh-milestones/internal/pkg/application/edit"
-	"github.com/valeriobelli/gh-milestones/internal/pkg/domain/constants"
+	"github.com/valeriobelli/gh-milestone/internal/pkg/application/edit"
+	"github.com/valeriobelli/gh-milestone/internal/pkg/domain/constants"
 )
 
 func NewEditCommand() *cobra.Command {

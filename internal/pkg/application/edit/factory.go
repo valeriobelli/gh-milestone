@@ -7,11 +7,11 @@ import (
 	"time"
 
 	ghub "github.com/google/go-github/github"
-	"github.com/valeriobelli/gh-milestones/internal/pkg/domain/constants"
-	"github.com/valeriobelli/gh-milestones/internal/pkg/infrastructure/gh"
-	"github.com/valeriobelli/gh-milestones/internal/pkg/infrastructure/github"
-	"github.com/valeriobelli/gh-milestones/internal/pkg/infrastructure/http"
-	"github.com/valeriobelli/gh-milestones/internal/pkg/infrastructure/spinner"
+	"github.com/valeriobelli/gh-milestone/internal/pkg/domain/constants"
+	"github.com/valeriobelli/gh-milestone/internal/pkg/infrastructure/gh"
+	"github.com/valeriobelli/gh-milestone/internal/pkg/infrastructure/github"
+	"github.com/valeriobelli/gh-milestone/internal/pkg/infrastructure/http"
+	"github.com/valeriobelli/gh-milestone/internal/pkg/infrastructure/spinner"
 )
 
 type EditMilestoneConfig struct {

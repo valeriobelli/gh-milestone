@@ -6,7 +6,7 @@ import (
 	"strconv"
 
 	"github.com/spf13/cobra"
-	"github.com/valeriobelli/gh-milestones/internal/pkg/application/view"
+	"github.com/valeriobelli/gh-milestone/internal/pkg/application/view"
 )
 
 func NewViewCommand() *cobra.Command {

@@ -2,7 +2,7 @@ package cmd
 
 import (
 	"github.com/spf13/cobra"
-	"github.com/valeriobelli/gh-milestones/internal/pkg/application/list"
+	"github.com/valeriobelli/gh-milestone/internal/pkg/application/list"
 )
 
 func NewListCommand() *cobra.Command {

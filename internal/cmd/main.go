@@ -10,8 +10,8 @@ import (
 const version = "v0.2.0"
 
 var rootCommand = &cobra.Command{
-	Use:   "milestones",
-	Short: "Work with Github Milestons",
+	Use:   "milestone",
+	Short: "Work with Github Milestones",
 	Long:  "A gh extension for viewing and manipulating milestones directly from the terminal.",
 	Run: func(command *cobra.Command, args []string) {
 		versionFlag, _ := command.Flags().GetBool("version")

@@ -11,12 +11,12 @@ import (
 	"github.com/savaki/jq"
 	"github.com/shurcooL/githubv4"
 
-	github_entities "github.com/valeriobelli/gh-milestones/internal/pkg/domain/github"
-	"github.com/valeriobelli/gh-milestones/internal/pkg/infrastructure/gh"
-	"github.com/valeriobelli/gh-milestones/internal/pkg/infrastructure/github"
-	"github.com/valeriobelli/gh-milestones/internal/pkg/infrastructure/http"
-	"github.com/valeriobelli/gh-milestones/internal/pkg/infrastructure/spinner"
-	tw "github.com/valeriobelli/gh-milestones/internal/pkg/infrastructure/tableWriter"
+	github_entities "github.com/valeriobelli/gh-milestone/internal/pkg/domain/github"
+	"github.com/valeriobelli/gh-milestone/internal/pkg/infrastructure/gh"
+	"github.com/valeriobelli/gh-milestone/internal/pkg/infrastructure/github"
+	"github.com/valeriobelli/gh-milestone/internal/pkg/infrastructure/http"
+	"github.com/valeriobelli/gh-milestone/internal/pkg/infrastructure/spinner"
+	tw "github.com/valeriobelli/gh-milestone/internal/pkg/infrastructure/tableWriter"
 )
 
 var query struct {

@@ -8,8 +8,8 @@ import (
 	"github.com/AlecAivazis/survey/v2"
 	"github.com/cli/cli/v2/pkg/surveyext"
 	"github.com/spf13/cobra"
-	"github.com/valeriobelli/gh-milestones/internal/pkg/application/create"
-	"github.com/valeriobelli/gh-milestones/internal/pkg/domain/constants"
+	"github.com/valeriobelli/gh-milestone/internal/pkg/application/create"
+	"github.com/valeriobelli/gh-milestone/internal/pkg/domain/constants"
 )
 
 func NewCreateCommand() *cobra.Command {

@@ -1,4 +1,4 @@
-module github.com/valeriobelli/gh-milestones
+module github.com/valeriobelli/gh-milestone
 
 go 1.18
 
