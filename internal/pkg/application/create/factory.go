@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"time"
 
-	ghub "github.com/google/go-github/github"
+	ghub "github.com/google/go-github/v44/github"
 	"github.com/valeriobelli/gh-milestone/internal/pkg/infrastructure/gh"
 	"github.com/valeriobelli/gh-milestone/internal/pkg/infrastructure/github"
 	"github.com/valeriobelli/gh-milestone/internal/pkg/infrastructure/http"
@@ -13,10 +13,9 @@ import (
 )
 
 type CreateMilestoneConfig struct {
+	Description string
 	DueDate     *time.Time
-	Title       *string
-	Description *string
-	Verbose     bool
+	Title       string
 }
 
 type CreateMilestone struct {
@@ -36,24 +35,15 @@ func (cm CreateMilestone) Execute() {
 		return
 	}
 
-	client := github.NewRestClient(http.NewClient())
+	fmt.Printf("Creating milestone in %s/%s\n\n", repoInfo.Owner, repoInfo.Name)
 
-	spinner := spinner.NewSpinner()
+	survey := NewSurvey(Flags{
+		Description: cm.config.Description,
+		DueDate:     cm.config.DueDate,
+		Title:       cm.config.Title,
+	})
 
-	spinner.Start()
-
-	_, _, err = client.Issues.CreateMilestone(
-		context.Background(),
-		repoInfo.Owner,
-		repoInfo.Name,
-		&ghub.Milestone{
-			Description: cm.config.Description,
-			DueOn:       cm.config.DueDate,
-			Title:       cm.config.Title,
-		},
-	)
-
-	spinner.Stop()
+	answers, err := survey.Ask()
 
 	if err != nil {
 		fmt.Println(err.Error())
@@ -61,5 +51,38 @@ func (cm CreateMilestone) Execute() {
 		return
 	}
 
-	fmt.Println("Milestone has been created.")
+	if answers.Confirm == false {
+		fmt.Println("Discarding.")
+
+		return
+	}
+
+	client := github.NewRestClient(http.NewClient())
+
+	spinner := spinner.NewSpinner()
+
+	spinner.Start()
+
+	milestone, response, err := client.Issues.CreateMilestone(
+		context.Background(),
+		repoInfo.Owner,
+		repoInfo.Name,
+		&ghub.Milestone{
+			Description: &answers.Description,
+			DueOn:       answers.getTime(),
+			Title:       &answers.Title,
+		},
+	)
+
+	spinner.Stop()
+
+	if err != nil {
+		err = handleResponseError(response)
+
+		fmt.Println(err.Error())
+
+		return
+	}
+
+	fmt.Printf("%s\n", milestone.GetHTMLURL())
 }

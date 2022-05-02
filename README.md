@@ -10,6 +10,18 @@ gh extension install valeriobelli/gh-milestone
 
 ## Usage
 
+Create a new milestone interactively
+
+```bash
+gh milestones create
+```
+
+or by using flags
+
+```bash
+gh milestones create --title v1.0.0 --description "This is a description" --due-date 2022-06-01
+```
+
 List milestones
 
 ```bash

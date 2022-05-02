@@ -6,6 +6,7 @@ require github.com/cli/go-gh v0.0.3
 
 require (
 	github.com/AlecAivazis/survey/v2 v2.3.4 // indirect
+	github.com/MakeNowJust/heredoc/v2 v2.0.1 // indirect
 	github.com/atotto/clipboard v0.1.4 // indirect
 	github.com/briandowns/spinner v1.18.1 // indirect
 	github.com/charmbracelet/lipgloss v0.5.0 // indirect
@@ -15,7 +16,7 @@ require (
 	github.com/containerd/console v1.0.3 // indirect
 	github.com/fatih/color v1.13.0 // indirect
 	github.com/golang/protobuf v1.5.2 // indirect
-	github.com/google/go-github v17.0.0+incompatible // indirect
+	github.com/google/go-github/v44 v44.0.0 // indirect
 	github.com/google/go-querystring v1.1.0 // indirect
 	github.com/henvic/httpretty v0.0.6 // indirect
 	github.com/inconshreveable/mousetrap v1.0.0 // indirect
@@ -35,6 +36,7 @@ require (
 	github.com/shurcooL/graphql v0.0.0-20200928012149-18c5c3165e3a // indirect
 	github.com/spf13/cobra v1.4.0 // indirect
 	github.com/spf13/pflag v1.0.5 // indirect
+	golang.org/x/crypto v0.0.0-20210817164053-32db794688a5 // indirect
 	golang.org/x/net v0.0.0-20220421235706-1d1ef9303861 // indirect
 	golang.org/x/oauth2 v0.0.0-20220411215720-9780585627b5 // indirect
 	golang.org/x/sys v0.0.0-20220227234510-4e6760a101f9 // indirect

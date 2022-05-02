@@ -6,7 +6,7 @@ import (
 	"strings"
 	"time"
 
-	ghub "github.com/google/go-github/github"
+	ghub "github.com/google/go-github/v44/github"
 	"github.com/valeriobelli/gh-milestone/internal/pkg/domain/constants"
 	"github.com/valeriobelli/gh-milestone/internal/pkg/infrastructure/gh"
 	"github.com/valeriobelli/gh-milestone/internal/pkg/infrastructure/github"
