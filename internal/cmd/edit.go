@@ -6,9 +6,11 @@ import (
 	"strconv"
 	"time"
 
+	"github.com/MakeNowJust/heredoc/v2"
 	"github.com/spf13/cobra"
 	"github.com/valeriobelli/gh-milestone/internal/pkg/application/edit"
 	"github.com/valeriobelli/gh-milestone/internal/pkg/domain/constants"
+	"github.com/valeriobelli/gh-milestone/internal/pkg/domain/github"
 )
 
 func NewEditCommand() *cobra.Command {
@@ -22,16 +24,6 @@ func NewEditCommand() *cobra.Command {
 		return &description
 	}
 
-	var parseDueOn = func(dueOn string) (*time.Time, error) {
-		parsedDueDate, err := time.Parse(constants.DateFormat, dueOn)
-
-		if err != nil {
-			return nil, err
-		}
-
-		return &parsedDueDate, nil
-	}
-
 	var getDueDate = func(command *cobra.Command) (*time.Time, error) {
 		dueDate, err := command.Flags().GetString("due-date")
 
@@ -43,7 +35,13 @@ func NewEditCommand() *cobra.Command {
 			return nil, nil
 		}
 
-		return parseDueOn(dueDate)
+		parsedDate, err := github.NewDueDate(dueDate)
+
+		if err != nil {
+			return nil, err
+		}
+
+		return &parsedDate.Time, nil
 	}
 
 	var getState = func(command *cobra.Command) *string {
@@ -68,7 +66,15 @@ func NewEditCommand() *cobra.Command {
 
 	editCommand := &cobra.Command{
 		Use:   "edit",
-		Short: "Edit Github Milestones",
+		Short: "Edit a milestone",
+		Long:  "Edit a milestone on Github.",
+		Example: heredoc.Doc(`
+			# set a new title
+			gh milestone edit 1 --title "<new title>"
+
+			# close a milestone
+			gh milestone edit 1 --state closed
+		`),
 		Run: func(command *cobra.Command, args []string) {
 			if len(args) == 0 {
 				command.Help()
@@ -88,7 +94,6 @@ func NewEditCommand() *cobra.Command {
 			dueDate, err := getDueDate(command)
 			state := getState(command)
 			title := getTitle(command)
-			verbose, _ := command.Flags().GetBool("verbose")
 
 			if err != nil {
 				fmt.Println(err.Error())
@@ -96,17 +101,11 @@ func NewEditCommand() *cobra.Command {
 				return
 			}
 
-			if description == nil && dueDate == nil && state == nil && title == nil {
-				fmt.Println("At least on option among ['description', 'dueOn', 'state', 'title'] is needed to edit the milestone")
-
-			}
-
 			edit.NewEditMilestone(edit.EditMilestoneConfig{
 				Description: description,
 				DueDate:     dueDate,
 				State:       state,
 				Title:       title,
-				Verbose:     verbose,
 			}).Execute(milestoneNumber)
 		},
 		Args: func(cmd *cobra.Command, args []string) error {
@@ -124,11 +123,10 @@ func NewEditCommand() *cobra.Command {
 		},
 	}
 
-	editCommand.Flags().String("due-date", "", fmt.Sprintf("Set the Due date is %s", constants.DateFormat))
-	editCommand.Flags().String("description", "", "Milestone's description")
-	editCommand.Flags().String("state", "", "Milestone's state. Accepted values are: ['open', 'closed']")
-	editCommand.Flags().String("title", "", "Milestone's title")
-	editCommand.Flags().BoolP("verbose", "v", false, "Print the result of the editing")
+	editCommand.Flags().StringP("due-date", "u", "", fmt.Sprintf("Set the milestone Due date [%s]", constants.DateFormat))
+	editCommand.Flags().StringP("description", "d", "", "Set the milestone description")
+	editCommand.Flags().StringP("state", "s", "", "Set the milestone state ['open', 'closed']")
+	editCommand.Flags().StringP("title", "t", "", "Set the milestone title")
 
 	return editCommand
 }

@@ -35,7 +35,11 @@ func NewCreateCommand() *cobra.Command {
 
 		parsedDate, err := github.NewDueDate(dueDate)
 
-		return &parsedDate.Time, err
+		if err != nil {
+			return nil, err
+		}
+
+		return &parsedDate.Time, nil
 	}
 
 	var getTitle = func(command *cobra.Command) string {
