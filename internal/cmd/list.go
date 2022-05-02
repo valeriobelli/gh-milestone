@@ -1,6 +1,7 @@
 package cmd
 
 import (
+	"github.com/MakeNowJust/heredoc/v2"
 	"github.com/spf13/cobra"
 	"github.com/valeriobelli/gh-milestone/internal/pkg/application/list"
 )
@@ -19,13 +20,14 @@ func NewListCommand() *cobra.Command {
 
 	listCommand := &cobra.Command{
 		Use:   "list",
-		Short: "List the available milestones.",
-		Long: `List the available milestones. 
+		Short: "List the available milestones",
+		Long: heredoc.Doc(
+			`List the available milestones on Github. 
 	
-Optionally, the Milestones can be filtered by a search string and status and ordered by some criterias.
+			Optionally, the Milestones can be filtered by a search string and status and ordered by some criterias.
 
-This command permit to print the output as a JSON string and interact with this latter using jq.
-		`,
+			This command permit to print the output as a JSON string and interact with this latter using jq.
+		`),
 		Run: func(command *cobra.Command, args []string) {
 			first, _ := command.Flags().GetInt("first")
 			orderBy := getOrderBy(command)
