@@ -5,17 +5,20 @@ import (
 	"fmt"
 	"strconv"
 
+	"github.com/MakeNowJust/heredoc/v2"
 	"github.com/spf13/cobra"
 	"github.com/valeriobelli/gh-milestone/internal/pkg/application/view"
 )
 
 func NewViewCommand() *cobra.Command {
 	viewCommand := &cobra.Command{
-		Use: "view",
-		Short: `Display the milestone informations. 
+		Use:   "view",
+		Short: "Display the milestone",
+		Long: heredoc.Doc(`
+			Display the information of the milestone.
 
-With '--web', open the pull request in a web browser instead.
-		`,
+			Optionally, to open the pull request in a browser the '--web' flag can be passed.
+		`),
 		Run: func(command *cobra.Command, args []string) {
 			if len(args) == 0 {
 				command.Help()
@@ -45,7 +48,7 @@ With '--web', open the pull request in a web browser instead.
 			_, err := strconv.Atoi(args[0])
 
 			if err != nil {
-				return errors.New("A numeric identifier is needed to view a milestone's information")
+				return errors.New("A numeric identifier is needed to view the milestone")
 			}
 
 			return nil
