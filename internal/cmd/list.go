@@ -19,8 +19,9 @@ func NewListCommand() *cobra.Command {
 	}
 
 	listCommand := &cobra.Command{
-		Use:   "list",
-		Short: "List the available milestones",
+		Use:     "list",
+		Aliases: []string{"ls"},
+		Short:   "List the available milestones",
 		Long: heredoc.Doc(
 			`List the available milestones on Github. 
 	
