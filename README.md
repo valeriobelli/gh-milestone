@@ -23,7 +23,7 @@ gh milestone create --title v1.0.0 --description "This is a description" --due-d
 ### List milestones
 
 ```bash
-# Extended
+# Extended command
 gh milestone list
 
 # Alias
@@ -40,4 +40,14 @@ gh milestone edit <milestone number> --title "New title"
 
 ```bash
 gh milestone view <milestone number>
+```
+
+### Delete milestone
+
+```bash
+# Interactive mode
+gh milestone delete <milestone number>
+
+# Automatic
+gh milestone delete <milestone number> --confirm
 ```
