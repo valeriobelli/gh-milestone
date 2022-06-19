@@ -29,7 +29,7 @@ func NewSurvey(config Config) *Survey {
 		questions = append(questions, &survey.Question{
 			Name: "confirm",
 			Prompt: &survey.Input{
-				Message: fmt.Sprintf("You're going to delete milestone #%d (%s). This action cannot be reversed. To confirm, type the issue number:", *config.Milestone.Number, *config.Milestone.Title),
+				Message: fmt.Sprintf("You're going to delete milestone #%d (%s). This action cannot be reversed. To confirm, type the milestone number:", *config.Milestone.Number, *config.Milestone.Title),
 			},
 			Transform: func(ans interface{}) (newAns interface{}) {
 				switch milestoneNumber := ans.(type) {
