@@ -2,7 +2,6 @@ package http
 
 import (
 	"context"
-	"fmt"
 	"net/http"
 	"os"
 	"strings"
@@ -22,12 +21,8 @@ func NewClient() *http.Client {
 		return github_token
 	}
 
-	token := getToken()
-
-	fmt.Println()
-
 	token_source := oauth2.StaticTokenSource(
-		&oauth2.Token{AccessToken: token},
+		&oauth2.Token{AccessToken: getToken()},
 	)
 
 	return oauth2.NewClient(context.Background(), token_source)
