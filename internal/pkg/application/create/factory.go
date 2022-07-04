@@ -77,6 +77,12 @@ func (cm CreateMilestone) Execute() {
 	spinner.Stop()
 
 	if err != nil {
+		if response == nil {
+			fmt.Println(err.Error())
+
+			return
+		}
+
 		err = handleResponseError(response)
 
 		fmt.Println(err.Error())
