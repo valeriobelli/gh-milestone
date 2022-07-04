@@ -7,7 +7,7 @@ import (
 	"github.com/spf13/cobra"
 )
 
-const version = "v0.4.1"
+const version = "v0.5.0"
 
 var rootCommand = &cobra.Command{
 	Use:   "milestone",
