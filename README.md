@@ -11,7 +11,8 @@ gh extension install valeriobelli/gh-milestone
 ## Usage
 
 By default, this extension uses the GitHub's Access Token of the current user for the host `github.com`.
-You can override this behaviour by setting either `GITHUB_TOKEN` or `GITHUB_MILESTONE_HOST`.
+
+You override the authentication of the current registered gh user by defining `GITHUB_TOKEN` in your environment variables. You can also override the host where your user is authenticated by setting `GITHUB_MILESTONE_HOST` still in your environment variables. By defining this latter, you change the behaviour of `gh config get --host <host> oauth_token`, which is the command this extension relies upon.
 
 ### Create a new milestone
 
