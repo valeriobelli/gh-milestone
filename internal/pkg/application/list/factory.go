@@ -11,6 +11,7 @@ import (
 	"github.com/savaki/jq"
 	"github.com/shurcooL/githubv4"
 
+	"github.com/valeriobelli/gh-milestone/internal/pkg/domain/constants"
 	github_entities "github.com/valeriobelli/gh-milestone/internal/pkg/domain/github"
 	"github.com/valeriobelli/gh-milestone/internal/pkg/infrastructure/gh"
 	"github.com/valeriobelli/gh-milestone/internal/pkg/infrastructure/github"
@@ -38,7 +39,7 @@ type ListMilestonesConfig struct {
 	OrderBy MilestonesOrderBy
 	Output  string
 	Query   string
-	States  []string
+	State   string
 }
 
 type ListMilestones struct {
@@ -168,11 +169,9 @@ func (l ListMilestones) printColoredNumber(milestone github_entities.Milestone) 
 }
 
 func (l ListMilestones) getStates() []githubv4.MilestoneState {
-	mappedSlice := make([]githubv4.MilestoneState, len(l.config.States))
-
-	for idx, state := range l.config.States {
-		mappedSlice[idx] = githubv4.MilestoneState(state)
+	if l.config.State == constants.MilestoneStateAll {
+		return []githubv4.MilestoneState{githubv4.MilestoneStateOpen, githubv4.MilestoneStateClosed}
 	}
 
-	return mappedSlice
+	return []githubv4.MilestoneState{githubv4.MilestoneState(l.config.State)}
 }

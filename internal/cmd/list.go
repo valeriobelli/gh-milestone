@@ -1,9 +1,14 @@
 package cmd
 
 import (
+	"fmt"
+	"strings"
+
 	"github.com/MakeNowJust/heredoc/v2"
 	"github.com/spf13/cobra"
 	"github.com/valeriobelli/gh-milestone/internal/pkg/application/list"
+	"github.com/valeriobelli/gh-milestone/internal/pkg/domain/constants"
+	"github.com/valeriobelli/gh-milestone/internal/pkg/utils/slices"
 )
 
 func NewListCommand() *cobra.Command {
@@ -16,6 +21,22 @@ func NewListCommand() *cobra.Command {
 		}
 
 		return list.MilestonesOrderBy{Direction: orderByDirection, Field: orderByField}
+	}
+
+	var getState = func(command *cobra.Command) string {
+		state, err := command.Flags().GetString("state")
+
+		if err != nil {
+			return constants.MilestoneStateOpen
+		}
+
+		uppercaseState := strings.ToUpper(state)
+
+		if slices.Contains(constants.MilestoneStates, uppercaseState) {
+			return uppercaseState
+		}
+
+		return constants.MilestoneStateOpen
 	}
 
 	listCommand := &cobra.Command{
@@ -35,7 +56,7 @@ func NewListCommand() *cobra.Command {
 			output, _ := command.Flags().GetString("output")
 			query, _ := command.Flags().GetString("query")
 			jq, _ := command.Flags().GetString("jq")
-			states, _ := command.Flags().GetStringArray("states")
+			state := getState(command)
 
 			list.NewListMilestones(list.ListMilestonesConfig{
 				Query:   query,
@@ -43,17 +64,21 @@ func NewListCommand() *cobra.Command {
 				First:   first,
 				Jq:      jq,
 				Output:  output,
-				States:  states,
+				State:   state,
 			}).Execute()
 		},
 	}
 
+	possibleStateValues := strings.Join(slices.Map(constants.MilestoneStates, func(value string) string {
+		return strings.ToLower(value)
+	}), "|")
+
 	listCommand.Flags().IntP("first", "f", 100, "View the first n elements from the list")
-	listCommand.Flags().StringArrayP("states", "s", []string{"OPEN"}, "View milestons by states")
-	listCommand.Flags().String("orderBy.direction", "ASC", "Use the defined sorting direction")
-	listCommand.Flags().String("orderBy.field", "NUMBER", "Sort the milestones by a field ['DUE_DATE', 'CREATED_AT', 'NUMBER', 'UPDATED_AT']")
+	listCommand.Flags().StringP("state", "s", "open", fmt.Sprintf("View milestones by their state: {%s}", possibleStateValues))
+	listCommand.Flags().String("orderBy.direction", "ASC", "Use the defined sorting direction: {ASC|DESC}")
+	listCommand.Flags().String("orderBy.field", "NUMBER", "Sort the milestones by a field: {DUE_DATE|CREATED_AT|NUMBER|UPDATED_AT}")
 	listCommand.Flags().StringP("jq", "j", "", "Filter JSON output using a jq expression in combination with --output=json")
-	listCommand.Flags().StringP("output", "o", "table", "Decide the output of this command ['json', 'table']")
+	listCommand.Flags().StringP("output", "o", "table", "Decide the output of this command: {json|table}")
 	listCommand.Flags().StringP("query", "q", "", "View milestones by string pattern")
 
 	return listCommand
