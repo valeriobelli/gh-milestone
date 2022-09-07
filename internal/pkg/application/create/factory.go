@@ -26,13 +26,11 @@ func NewCreateMilestone(config CreateMilestoneConfig) *CreateMilestone {
 	return &CreateMilestone{config: config}
 }
 
-func (cm CreateMilestone) Execute() {
+func (cm CreateMilestone) Execute() error {
 	repoInfo, err := gh.RetrieveRepoInformation()
 
 	if err != nil {
-		fmt.Println(err.Error())
-
-		return
+		return err
 	}
 
 	fmt.Printf("Creating milestone in %s/%s\n\n", repoInfo.Owner, repoInfo.Name)
@@ -46,15 +44,13 @@ func (cm CreateMilestone) Execute() {
 	answers, err := survey.Ask()
 
 	if err != nil {
-		fmt.Println(err.Error())
-
-		return
+		return err
 	}
 
-	if answers.Confirm == false {
+	if !answers.Confirm {
 		fmt.Println("Discarding.")
 
-		return
+		return nil
 	}
 
 	client := github.NewRestClient(http.NewClient())
@@ -78,17 +74,13 @@ func (cm CreateMilestone) Execute() {
 
 	if err != nil {
 		if response == nil {
-			fmt.Println(err.Error())
-
-			return
+			return err
 		}
 
-		err = handleResponseError(response)
-
-		fmt.Println(err.Error())
-
-		return
+		return handleResponseError(response)
 	}
 
-	fmt.Printf("%s\n", milestone.GetHTMLURL())
+	fmt.Println(milestone.GetHTMLURL())
+
+	return nil
 }

@@ -23,13 +23,11 @@ func NewDeleteMilestone(config DeleteMilestoneConfig) *DeleteMilestone {
 	return &DeleteMilestone{config: config}
 }
 
-func (em DeleteMilestone) Execute(number int) {
+func (em DeleteMilestone) Execute(number int) error {
 	repoInfo, err := gh.RetrieveRepoInformation()
 
 	if err != nil {
-		fmt.Println(err.Error())
-
-		return
+		return err
 	}
 
 	client := github.NewRestClient(http.NewClient())
@@ -43,9 +41,7 @@ func (em DeleteMilestone) Execute(number int) {
 	spinner.Stop()
 
 	if err != nil {
-		fmt.Println(handleResponseError(response).Error())
-
-		return
+		return handleResponseError(response)
 	}
 
 	survey := NewSurvey(Config{
@@ -56,15 +52,13 @@ func (em DeleteMilestone) Execute(number int) {
 	surveyAnswers, err := survey.Ask()
 
 	if err != nil {
-		fmt.Println(err.Error())
-
-		return
+		return err
 	}
 
 	if !surveyAnswers.Confirm {
 		fmt.Printf("Milestone #%d was not deleted.\n", *milestone.Number)
 
-		return
+		return nil
 	}
 
 	spinner.Start()
@@ -79,10 +73,10 @@ func (em DeleteMilestone) Execute(number int) {
 	spinner.Stop()
 
 	if err != nil {
-		fmt.Println(handleResponseError(response).Error())
-
-		return
+		return handleResponseError(response)
 	}
 
 	fmt.Printf(color.RedString("✔ ")+"Deleted milestone #%d (%s).\n", *milestone.Number, *milestone.Title)
+
+	return nil
 }

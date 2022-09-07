@@ -1,5 +1,11 @@
 # gh-milestone
 
+## 1.1.0
+
+### Minor Changes
+
+- Enhance the interface of commands. Strict values are now validated and better error messages are emitted.
+
 ## 1.0.0
 
 ### Major Changes

@@ -1,136 +1,101 @@
 package cmd
 
 import (
-	"errors"
 	"fmt"
 	"strconv"
-	"time"
 
 	"github.com/MakeNowJust/heredoc/v2"
 	"github.com/spf13/cobra"
 	"github.com/valeriobelli/gh-milestone/internal/pkg/application/edit"
+	commands_edit "github.com/valeriobelli/gh-milestone/internal/pkg/domain/commands/edit"
 	"github.com/valeriobelli/gh-milestone/internal/pkg/domain/constants"
-	"github.com/valeriobelli/gh-milestone/internal/pkg/domain/github"
+	"github.com/valeriobelli/gh-milestone/internal/pkg/utils/cmdutil"
 )
 
-func NewEditCommand() *cobra.Command {
-	var getDescription = func(command *cobra.Command) *string {
-		description, _ := command.Flags().GetString("description")
-
-		if description == "" {
-			return nil
-		}
-
-		return &description
-	}
-
-	var getDueDate = func(command *cobra.Command) (*time.Time, error) {
-		dueDate, err := command.Flags().GetString("due-date")
-
-		if err != nil {
-			return nil, err
-		}
-
-		if dueDate == "" {
-			return nil, nil
-		}
-
-		parsedDate, err := github.NewDueDate(dueDate)
-
-		if err != nil {
-			return nil, err
-		}
-
-		return &parsedDate.Time, nil
-	}
-
-	var getState = func(command *cobra.Command) *string {
-		state, _ := command.Flags().GetString("state")
-
-		if state == "" || (state != "open" && state != "closed") {
-			return nil
-		}
-
-		return &state
-	}
-
-	var getTitle = func(command *cobra.Command) *string {
-		title, _ := command.Flags().GetString("title")
-
-		if title == "" {
-			return nil
-		}
-
-		return &title
-	}
+func newEditCommand() *cobra.Command {
+	description := commands_edit.NewDescriptionFlag()
+	dueDate := commands_edit.NewDueDateFlag()
+	state := commands_edit.NewStateFlag()
+	title := commands_edit.NewTitleFlag()
 
 	editCommand := &cobra.Command{
-		Use:   "edit",
-		Short: "Edit a milestone",
-		Long:  "Edit a milestone on Github.",
+		Use: "edit",
 		Example: heredoc.Doc(`
-			# set a new title
-			gh milestone edit 1 --title "<new title>"
+			# set the new title
+			$ gh milestone edit 42 --title "<new title>"
 
-			# close a milestone
-			gh milestone edit 1 --state closed
+			# close the milestone
+			$ gh milestone edit 42 --state closed
 		`),
-		Run: func(command *cobra.Command, args []string) {
-			if len(args) == 0 {
-				command.Help()
-
-				return
+		Long:  "Edit a milestone",
+		Short: "Edit a milestone",
+		RunE: func(command *cobra.Command, args []string) error {
+			if len(args) < 1 {
+				return command.Help()
 			}
 
-			milestoneNumber, err := strconv.Atoi(args[0])
+			milestoneNumber, _ := strconv.Atoi(args[0])
+
+			dueDate, err := dueDate.GetValue()
 
 			if err != nil {
-				fmt.Println(err.Error())
-
-				return
+				return err
 			}
 
-			description := getDescription(command)
-			dueDate, err := getDueDate(command)
-			state := getState(command)
-			title := getTitle(command)
+			description := description.GetValue()
+			state := state.GetValue()
+			title := title.GetValue()
 
-			if err != nil {
-				fmt.Println(err.Error())
+			if dueDate == nil && description == nil && state == nil && title == nil {
+				fmt.Println("Nothing to edit, exiting.")
 
-				return
+				return nil
 			}
 
-			edit.NewEditMilestone(edit.EditMilestoneConfig{
+			return edit.NewEditMilestone(edit.EditMilestoneConfig{
 				Description: description,
 				DueDate:     dueDate,
 				State:       state,
 				Title:       title,
 			}).Execute(milestoneNumber)
 		},
-		Args: func(cmd *cobra.Command, args []string) error {
+		Args: func(command *cobra.Command, args []string) error {
 			if len(args) < 1 {
 				return nil
 			}
 
-			_, err := strconv.Atoi(args[0])
+			milestoneId := args[0]
+
+			_, err := strconv.Atoi(milestoneId)
 
 			if err != nil {
-				return errors.New("An numeric identifier is needed to edit a Milestone")
+				return fmt.Errorf(
+					"the value \"%s\" is not a valid numeric identifier needed to edit a Milestone",
+					milestoneId,
+				)
 			}
 
 			return nil
 		},
 	}
 
-	editCommand.Flags().StringP("due-date", "u", "", fmt.Sprintf("Set the milestone Due date [%s]", constants.DateFormat))
-	editCommand.Flags().StringP("description", "d", "", "Set the milestone description")
-	editCommand.Flags().StringP("state", "s", "", "Set the milestone state ['open', 'closed']")
-	editCommand.Flags().StringP("title", "t", "", "Set the milestone title")
+	editCommand.SetHelpFunc(cmdutil.HelpFunction)
+	editCommand.SetUsageFunc(cmdutil.UsageFunction)
+
+	editCommand.Flags().VarP(
+		dueDate,
+		"due-date",
+		"u",
+		fmt.Sprintf("Set the milestone Due date [%s]", constants.DateFormat),
+	)
+	editCommand.Flags().VarP(description, "description", "d", "Set the milestone description")
+	editCommand.Flags().VarP(
+		state,
+		"state",
+		"s",
+		fmt.Sprintf("Set the milestone state: {%s}", constants.JoinedEditMilestoneStates),
+	)
+	editCommand.Flags().VarP(title, "title", "t", "Set the milestone title")
 
 	return editCommand
-}
-
-func init() {
-	rootCommand.AddCommand(NewEditCommand())
 }

@@ -1,65 +1,61 @@
 package cmd
 
 import (
-	"errors"
 	"fmt"
 	"strconv"
 
 	"github.com/MakeNowJust/heredoc/v2"
 	"github.com/spf13/cobra"
 	"github.com/valeriobelli/gh-milestone/internal/pkg/application/view"
+	"github.com/valeriobelli/gh-milestone/internal/pkg/utils/cmdutil"
 )
 
-func NewViewCommand() *cobra.Command {
+func newViewCommand() *cobra.Command {
 	viewCommand := &cobra.Command{
-		Use:   "view",
-		Short: "Display the milestone",
-		Long: heredoc.Doc(`
-			Display the information of the milestone.
-
-			Optionally, to open the pull request in a browser the '--web' flag can be passed.
+		Use: "view",
+		Example: heredoc.Doc(`
+			# view the milestone on the browser
+			$ gh milestone view 42 --web
 		`),
-		Run: func(command *cobra.Command, args []string) {
-			if len(args) == 0 {
-				command.Help()
-
-				return
+		Long:  "Display a milestone",
+		Short: "Display a milestone",
+		RunE: func(command *cobra.Command, args []string) error {
+			if len(args) < 1 {
+				return command.Help()
 			}
 
-			milestoneNumber, err := strconv.Atoi(args[0])
-
-			if err != nil {
-				fmt.Println(err.Error())
-
-				return
-			}
+			milestoneNumber, _ := strconv.Atoi(args[0])
 
 			web, _ := command.Flags().GetBool("web")
 
-			view.NewViewMilestone(view.ViewMilestoneConfig{
+			return view.NewViewMilestone(view.ViewMilestoneConfig{
 				Web: web,
 			}).Execute(milestoneNumber)
 		},
-		Args: func(cmd *cobra.Command, args []string) error {
+		Args: func(command *cobra.Command, args []string) error {
 			if len(args) < 1 {
 				return nil
 			}
 
-			_, err := strconv.Atoi(args[0])
+			milestoneId := args[0]
+
+			_, err := strconv.Atoi(milestoneId)
 
 			if err != nil {
-				return errors.New("A numeric identifier is needed to view the milestone")
+				return fmt.Errorf(
+					"the value \"%s\" is not a valid numeric identifier needed to edit a Milestone",
+					milestoneId,
+				)
 			}
 
 			return nil
 		},
 	}
 
+	viewCommand.SetHelpFunc(cmdutil.HelpFunction)
+	viewCommand.SetUsageFunc(cmdutil.UsageFunction)
+
 	viewCommand.Flags().BoolP("web", "w", false, "View milestone on the browser")
 
 	return viewCommand
-}
-
-func init() {
-	rootCommand.AddCommand(NewViewCommand())
 }

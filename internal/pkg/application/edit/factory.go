@@ -27,13 +27,11 @@ func NewEditMilestone(config EditMilestoneConfig) *EditMilestone {
 	return &EditMilestone{config: config}
 }
 
-func (em EditMilestone) Execute(number int) {
+func (em EditMilestone) Execute(number int) error {
 	repoInfo, err := gh.RetrieveRepoInformation()
 
 	if err != nil {
-		fmt.Println(err.Error())
-
-		return
+		return err
 	}
 
 	client := github.NewRestClient(http.NewClient())
@@ -58,10 +56,10 @@ func (em EditMilestone) Execute(number int) {
 	spinner.Stop()
 
 	if err != nil {
-		fmt.Println(handleResponseError(response).Error())
-
-		return
+		return handleResponseError(response)
 	}
 
 	fmt.Println(*milestone.HTMLURL)
+
+	return nil
 }
