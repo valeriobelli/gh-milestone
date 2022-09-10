@@ -50,13 +50,11 @@ func NewListMilestones(config ListMilestonesConfig) *ListMilestones {
 	return &ListMilestones{config: config}
 }
 
-func (l ListMilestones) Execute() {
+func (l ListMilestones) Execute() error {
 	repoInfo, err := gh.RetrieveRepoInformation()
 
 	if err != nil {
-		fmt.Println(err.Error())
-
-		return
+		return err
 	}
 
 	client := github.NewGraphQlClient(http.NewClient())
@@ -69,8 +67,8 @@ func (l ListMilestones) Execute() {
 		"first": githubv4.Int(l.config.First),
 		"name":  githubv4.String(strings.TrimSpace(repoInfo.Name)),
 		"orderBy": githubv4.MilestoneOrder{
-			Direction: githubv4.OrderDirection(l.config.OrderBy.Direction),
-			Field:     githubv4.MilestoneOrderField(l.config.OrderBy.Field),
+			Direction: githubv4.OrderDirection(strings.ToUpper(l.config.OrderBy.Direction)),
+			Field:     githubv4.MilestoneOrderField(strings.ToUpper(l.config.OrderBy.Field)),
 		},
 		"owner":  githubv4.String(strings.TrimSpace(repoInfo.Owner)),
 		"query":  githubv4.String(l.config.Query),
@@ -80,28 +78,26 @@ func (l ListMilestones) Execute() {
 	spinner.Stop()
 
 	if err != nil {
-		fmt.Printf(err.Error())
-
-		return
+		return err
 	}
 
 	milestones := query.Repository.Milestones.Nodes
 
 	switch l.config.Output {
 	case "json":
-		l.printMilestonesAsJson(milestones)
+		return l.printMilestonesAsJson(milestones)
 	case "table":
 		fallthrough
 	default:
-		l.printMilestonesAsTable(milestones)
+		return l.printMilestonesAsTable(milestones)
 	}
 }
 
-func (l ListMilestones) printMilestonesAsTable(milestones []github_entities.Milestone) {
+func (l ListMilestones) printMilestonesAsTable(milestones []github_entities.Milestone) error {
 	if len(milestones) == 0 {
 		fmt.Println("No milestones found!")
 
-		return
+		return nil
 	}
 
 	rows := [][]string{}
@@ -127,15 +123,15 @@ func (l ListMilestones) printMilestonesAsTable(milestones []github_entities.Mile
 		RowSeparator:    &rowSeparator,
 		TablePadding:    &tablePadding,
 	}).RenderTable(rows)
+
+	return nil
 }
 
-func (l ListMilestones) printMilestonesAsJson(milestones []github_entities.Milestone) {
+func (l ListMilestones) printMilestonesAsJson(milestones []github_entities.Milestone) error {
 	jsonOutput, err := json.Marshal(milestones)
 
 	if err != nil {
-		fmt.Print(err.Error())
-
-		return
+		return err
 	}
 
 	jq, err := jq.Parse(l.config.Jq)
@@ -143,18 +139,18 @@ func (l ListMilestones) printMilestonesAsJson(milestones []github_entities.Miles
 	if l.config.Jq == "" || err != nil {
 		fmt.Println(string(jsonOutput))
 
-		return
+		return nil
 	}
 
 	jqOutput, err := jq.Apply(jsonOutput)
 
 	if err != nil {
-		fmt.Print(err.Error())
-
-		return
+		return err
 	}
 
 	fmt.Println(strings.TrimSpace(string(jqOutput)))
+
+	return nil
 }
 
 func (l ListMilestones) printColoredNumber(milestone github_entities.Milestone) string {

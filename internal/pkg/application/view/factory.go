@@ -2,6 +2,7 @@ package view
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"os/exec"
 	"runtime"
@@ -10,7 +11,6 @@ import (
 
 	"github.com/fatih/color"
 	"github.com/shurcooL/githubv4"
-	"github.com/valeriobelli/gh-milestone/internal/pkg/domain/constants"
 	github_entities "github.com/valeriobelli/gh-milestone/internal/pkg/domain/github"
 	"github.com/valeriobelli/gh-milestone/internal/pkg/infrastructure/gh"
 	"github.com/valeriobelli/gh-milestone/internal/pkg/infrastructure/github"
@@ -36,13 +36,11 @@ func NewViewMilestone(config ViewMilestoneConfig) *ViewMilestone {
 	return &ViewMilestone{config: config}
 }
 
-func (vm ViewMilestone) Execute(number int) {
+func (vm ViewMilestone) Execute(number int) error {
 	repoInfo, err := gh.RetrieveRepoInformation()
 
 	if err != nil {
-		fmt.Println(err.Error())
-
-		return
+		return err
 	}
 
 	client := github.NewGraphQlClient(http.NewClient())
@@ -60,55 +58,23 @@ func (vm ViewMilestone) Execute(number int) {
 	spinner.Stop()
 
 	if err != nil {
-		fmt.Println(err.Error())
-
-		return
+		return fmt.Errorf("failed to retrieve the milestone with id \"%d\"", number)
 	}
 
 	milestone := query.Repository.Milestone
 
 	if milestone == nil {
-		fmt.Println("Requested milestone does not exist.")
-
-		return
+		return errors.New("requested milestone does not exist")
 	}
 
 	if vm.config.Web {
-		vm.openUrl(*milestone)
-
-		return
+		return vm.openUrl(*milestone)
 	}
 
-	vm.printConsole(*milestone)
+	return vm.printConsole(*milestone)
 }
 
-func (vm ViewMilestone) mapTitle(milestone github_entities.Milestone) string {
-	if milestone.Title == "" {
-		return "<No Title>"
-	}
-
-	return milestone.Title
-}
-
-func (vm ViewMilestone) mapDescription(milestone github_entities.Milestone) string {
-	if milestone.Description == "" {
-		return "<No description>"
-	}
-
-	return milestone.Description
-}
-
-func (vm ViewMilestone) mapDueOn(milestone github_entities.Milestone) string {
-	parsedTime, err := time.Parse(milestone.DueOn, constants.DateFormat)
-
-	if err != nil {
-		return "<No due date>"
-	}
-
-	return parsedTime.Format(constants.DateFormat)
-}
-
-func (vm ViewMilestone) openUrl(milestone github_entities.Milestone) {
+func (vm ViewMilestone) openUrl(milestone github_entities.Milestone) error {
 	var cmd string
 	var args []string
 
@@ -125,9 +91,11 @@ func (vm ViewMilestone) openUrl(milestone github_entities.Milestone) {
 	args = append(args, milestone.Url)
 
 	exec.Command(cmd, args...).Start()
+
+	return nil
 }
 
-func (vm ViewMilestone) printConsole(milestone github_entities.Milestone) {
+func (vm ViewMilestone) printConsole(milestone github_entities.Milestone) error {
 	color.Set(color.FgHiWhite)
 
 	fmt.Print(milestone.Title)
@@ -153,8 +121,7 @@ func (vm ViewMilestone) printConsole(milestone github_entities.Milestone) {
 		parsedTime, err := time.Parse(time.RFC3339, milestone.DueOn)
 
 		if err != nil {
-			fmt.Print(err)
-			return
+			return err
 		}
 
 		year, month, day := parsedTime.Date()
@@ -167,8 +134,7 @@ func (vm ViewMilestone) printConsole(milestone github_entities.Milestone) {
 	parsedTime, err := time.Parse(time.RFC3339, milestone.UpdatedAt)
 
 	if err != nil {
-		fmt.Print(err)
-		return
+		return err
 	}
 
 	year, month, day := parsedTime.Date()
@@ -180,4 +146,6 @@ func (vm ViewMilestone) printConsole(milestone github_entities.Milestone) {
 	} else {
 		fmt.Println("No description")
 	}
+
+	return nil
 }

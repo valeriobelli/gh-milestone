@@ -1,59 +1,61 @@
 package cmd
 
 import (
-	"errors"
 	"fmt"
 	"strconv"
 
+	"github.com/MakeNowJust/heredoc/v2"
 	"github.com/spf13/cobra"
 	"github.com/valeriobelli/gh-milestone/internal/pkg/application/delete"
+	"github.com/valeriobelli/gh-milestone/internal/pkg/utils/cmdutil"
 )
 
-func NewDeleteCommand() *cobra.Command {
+func newDeleteCommand() *cobra.Command {
 	deleteCommand := &cobra.Command{
-		Use:   "delete",
-		Short: "Delete milestone",
-		Run: func(command *cobra.Command, args []string) {
-			if len(args) == 0 {
-				command.Help()
-
-				return
+		Use: "delete",
+		Example: heredoc.Doc(`
+			# autoconfirm the deletion
+			$ gh milestone delete 42 --confirm	
+		`),
+		Long:  "Delete a milestone",
+		Short: "Delete a milestone",
+		RunE: func(command *cobra.Command, args []string) error {
+			if len(args) < 1 {
+				return command.Help()
 			}
 
-			milestoneNumber, err := strconv.Atoi(args[0])
-
-			if err != nil {
-				fmt.Println(err.Error())
-
-				return
-			}
+			milestoneId, _ := strconv.Atoi(args[0])
 
 			confirm, _ := command.Flags().GetBool("confirm")
 
-			delete.NewDeleteMilestone(delete.DeleteMilestoneConfig{
+			return delete.NewDeleteMilestone(delete.DeleteMilestoneConfig{
 				Confirm: confirm,
-			}).Execute(milestoneNumber)
+			}).Execute(milestoneId)
 		},
-		Args: func(cmd *cobra.Command, args []string) error {
+		Args: func(command *cobra.Command, args []string) error {
 			if len(args) < 1 {
 				return nil
 			}
 
-			_, err := strconv.Atoi(args[0])
+			milestoneId := args[0]
+
+			_, err := strconv.Atoi(milestoneId)
 
 			if err != nil {
-				return errors.New("A numeric identifier is needed to delete the milestone")
+				return fmt.Errorf(
+					"the value \"%s\" is not a valid numeric identifier needed to edit a Milestone",
+					milestoneId,
+				)
 			}
 
 			return nil
 		},
 	}
 
+	deleteCommand.SetHelpFunc(cmdutil.HelpFunction)
+	deleteCommand.SetUsageFunc(cmdutil.UsageFunction)
+
 	deleteCommand.Flags().BoolP("confirm", "c", false, "Confirm deletion without prompting")
 
 	return deleteCommand
-}
-
-func init() {
-	rootCommand.AddCommand(NewDeleteCommand())
 }
