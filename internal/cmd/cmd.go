@@ -8,7 +8,7 @@ import (
 	"github.com/valeriobelli/gh-milestone/internal/pkg/utils/cmdutil"
 )
 
-const version = "v1.1.0"
+const version = "v1.1.1"
 
 func Execute() {
 	var rootCommand = &cobra.Command{

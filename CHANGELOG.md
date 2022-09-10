@@ -1,5 +1,11 @@
 # gh-milestone
 
+## 1.1.1
+
+### Patch Changes
+
+- Strings with mixed cases are now recognized and handled in `edit` subcommand.
+
 ## 1.1.0
 
 ### Minor Changes
