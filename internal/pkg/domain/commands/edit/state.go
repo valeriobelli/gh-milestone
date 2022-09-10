@@ -28,7 +28,9 @@ func (flag *stateFlag) GetValue() *string {
 
 func (flag *stateFlag) Set(value string) error {
 	if slices.Contains(constants.CreateMilestoneStates, strings.ToUpper(value)) {
-		*flag = stateFlag{string: &value}
+		loweredValue := strings.ToLower(value)
+
+		*flag = stateFlag{string: &loweredValue}
 
 		return nil
 	}
