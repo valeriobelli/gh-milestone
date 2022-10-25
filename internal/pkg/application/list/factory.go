@@ -8,7 +8,7 @@ import (
 	"strings"
 
 	"github.com/fatih/color"
-	"github.com/savaki/jq"
+	"github.com/itchyny/gojq"
 	"github.com/shurcooL/githubv4"
 
 	"github.com/valeriobelli/gh-milestone/internal/pkg/domain/constants"
@@ -128,27 +128,53 @@ func (l ListMilestones) printMilestonesAsTable(milestones []github_entities.Mile
 }
 
 func (l ListMilestones) printMilestonesAsJson(milestones []github_entities.Milestone) error {
-	jsonOutput, err := json.Marshal(milestones)
+	data, err := json.Marshal(milestones)
 
 	if err != nil {
 		return err
 	}
 
-	jq, err := jq.Parse(l.config.Jq)
-
-	if l.config.Jq == "" || err != nil {
-		fmt.Println(string(jsonOutput))
+	if l.config.Jq == "" {
+		fmt.Println(string(data))
 
 		return nil
 	}
 
-	jqOutput, err := jq.Apply(jsonOutput)
+	var milestoneInterface interface{}
+
+	err = json.Unmarshal(data, &milestoneInterface)
 
 	if err != nil {
 		return err
 	}
 
-	fmt.Println(strings.TrimSpace(string(jqOutput)))
+	query, err := gojq.Parse(l.config.Jq)
+
+	if err != nil {
+		return err
+	}
+
+	iter := query.Run(milestoneInterface)
+
+	for {
+		parsedValue, ok := iter.Next()
+
+		if !ok {
+			break
+		}
+
+		if err, ok := parsedValue.(error); ok {
+			return err
+		}
+
+		printValue, err := json.Marshal(parsedValue)
+
+		if err != nil {
+			return err
+		}
+
+		fmt.Println(string(printValue))
+	}
 
 	return nil
 }
