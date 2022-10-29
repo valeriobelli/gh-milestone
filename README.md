@@ -32,6 +32,22 @@ gh milestone list
 
 # Alias
 gh milestone ls
+
+# List closed Milestones
+gh milestone list --state closed
+
+# Search by a pattern
+gh milestone list --query "Foo bar"
+
+# Get first ten milestones
+gh milestone list --first 10
+
+# Print milestones as JSON
+gh milestone list --json id
+gh milestone list --json id,progressPercentage --json number
+
+# Access Milestone attributes via jq
+gh milestone list --json id,progressPercentage --json number --jq ".[0].id"
 ```
 
 ### Edit a milestone
