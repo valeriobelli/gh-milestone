@@ -43,12 +43,3 @@ const (
 var OrderByFields = []string{OrderByFieldCreatedAt, OrderByFieldDueDate, OrderByFieldNumber, OrderByFieldUpdatedAt}
 
 var JoinedOrderByFields = prepareForDocUsage(OrderByFields)
-
-const (
-	OutputJson  string = "json"
-	OutputTable string = "table"
-)
-
-var Outputs = []string{OutputJson, OutputTable}
-
-var JoinedOutputs = prepareForDocUsage(Outputs)
