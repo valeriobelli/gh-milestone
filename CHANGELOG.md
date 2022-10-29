@@ -1,5 +1,16 @@
 # gh-milestone
 
+## 2.0.0
+
+### Major Changes
+
+- Remove the `--output=json` flag from the `list` subcommand. The specific JSON output is now exposed via the new `--json` flag which acts as the other gh/cli subcommands.
+- The JSON output returned by `list` subcommand now contains camel case attributes.
+
+### Patch Changes
+
+- Resolve `jq` bugged syntax
+
 ## 1.1.1
 
 ### Patch Changes
