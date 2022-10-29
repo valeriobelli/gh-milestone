@@ -16,8 +16,21 @@ type Milestone struct {
 	ProgressPercentage float64 `json:"progressPercentage"`
 	State              string  `json:"state"`
 	Title              string  `json:"title"`
-	Url                string  `json:"url"`
 	UpdatedAt          string  `json:"updatedAt"`
+	Url                string  `json:"url"`
+}
+
+var MilestoneFields = []string{
+	"closed",
+	"description",
+	"dueOn",
+	"id",
+	"number",
+	"progressPercentage",
+	"state",
+	"title",
+	"updatedAt",
+	"url",
 }
 
 type DueDate struct{ time.Time }

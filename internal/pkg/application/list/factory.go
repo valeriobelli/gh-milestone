@@ -1,6 +1,7 @@
 package list
 
 import (
+	"bytes"
 	"context"
 	"encoding/json"
 	"fmt"
@@ -8,7 +9,6 @@ import (
 	"strings"
 
 	"github.com/fatih/color"
-	"github.com/itchyny/gojq"
 	"github.com/shurcooL/githubv4"
 
 	"github.com/valeriobelli/gh-milestone/internal/pkg/domain/constants"
@@ -18,6 +18,7 @@ import (
 	"github.com/valeriobelli/gh-milestone/internal/pkg/infrastructure/http"
 	"github.com/valeriobelli/gh-milestone/internal/pkg/infrastructure/spinner"
 	tw "github.com/valeriobelli/gh-milestone/internal/pkg/infrastructure/tableWriter"
+	"github.com/valeriobelli/gh-milestone/internal/pkg/utils/jq"
 )
 
 var query struct {
@@ -37,7 +38,7 @@ type ListMilestonesConfig struct {
 	First   int
 	Jq      string
 	OrderBy MilestonesOrderBy
-	Output  string
+	Json    []string
 	Query   string
 	State   string
 }
@@ -83,14 +84,11 @@ func (l ListMilestones) Execute() error {
 
 	milestones := query.Repository.Milestones.Nodes
 
-	switch l.config.Output {
-	case "json":
-		return l.printMilestonesAsJson(milestones)
-	case "table":
-		fallthrough
-	default:
-		return l.printMilestonesAsTable(milestones)
+	if len(l.config.Json) > 0 {
+		return l.printMilestonesAsJson(l.config.Json, milestones)
 	}
+
+	return l.printMilestonesAsTable(milestones)
 }
 
 func (l ListMilestones) printMilestonesAsTable(milestones []github_entities.Milestone) error {
@@ -127,56 +125,40 @@ func (l ListMilestones) printMilestonesAsTable(milestones []github_entities.Mile
 	return nil
 }
 
-func (l ListMilestones) printMilestonesAsJson(milestones []github_entities.Milestone) error {
+func (l ListMilestones) printMilestonesAsJson(jsonFields []string, milestones []github_entities.Milestone) error {
 	data, err := json.Marshal(milestones)
 
 	if err != nil {
 		return err
 	}
 
-	if l.config.Jq == "" {
-		fmt.Println(string(data))
+	var unmarshaledMilestones []map[string]interface{}
 
-		return nil
-	}
-
-	var milestoneInterface interface{}
-
-	err = json.Unmarshal(data, &milestoneInterface)
-
-	if err != nil {
+	if err = json.Unmarshal(data, &unmarshaledMilestones); err != nil {
 		return err
 	}
 
-	query, err := gojq.Parse(l.config.Jq)
+	milestoneWithFilteredProperties := []interface{}{}
 
-	if err != nil {
+	for _, milestone := range unmarshaledMilestones {
+		mappedMilestone := map[string]interface{}{}
+
+		for _, field := range jsonFields {
+			mappedMilestone[field] = milestone[field]
+		}
+
+		milestoneWithFilteredProperties = append(milestoneWithFilteredProperties, mappedMilestone)
+	}
+
+	buf := bytes.Buffer{}
+	encoder := json.NewEncoder(&buf)
+	encoder.SetEscapeHTML(false)
+
+	if err := encoder.Encode(milestoneWithFilteredProperties); err != nil {
 		return err
 	}
 
-	iter := query.Run(milestoneInterface)
-
-	for {
-		parsedValue, ok := iter.Next()
-
-		if !ok {
-			break
-		}
-
-		if err, ok := parsedValue.(error); ok {
-			return err
-		}
-
-		printValue, err := json.Marshal(parsedValue)
-
-		if err != nil {
-			return err
-		}
-
-		fmt.Println(string(printValue))
-	}
-
-	return nil
+	return jq.Evaluate(&buf, os.Stdout, l.config.Jq)
 }
 
 func (l ListMilestones) printColoredNumber(milestone github_entities.Milestone) string {
