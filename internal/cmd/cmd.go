@@ -8,7 +8,7 @@ import (
 	"github.com/valeriobelli/gh-milestone/internal/pkg/utils/cmdutil"
 )
 
-const version = "v2.0.1"
+const version = "v2.1.0"
 
 func Execute() {
 	var rootCommand = &cobra.Command{
@@ -33,6 +33,7 @@ func Execute() {
 	rootCommand.SetUsageFunc(cmdutil.UsageFunction)
 
 	rootCommand.Flags().BoolP("version", "v", false, "Print the version of this extension")
+	rootCommand.PersistentFlags().StringP("repo", "R", "", "Select another repository using the [HOST/]OWNER/REPO format")
 
 	rootCommand.AddCommand(newCreateCommand())
 	rootCommand.AddCommand(newDeleteCommand())

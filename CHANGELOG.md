@@ -1,5 +1,11 @@
 # gh-milestone
 
+## 2.1.0
+
+### Minor Changes
+
+- Add --repo/-R option to every command. Resolves [#15](https://github.com/valeriobelli/gh-milestone/issues/15)
+
 ## 2.0.1
 
 ### Patch Changes

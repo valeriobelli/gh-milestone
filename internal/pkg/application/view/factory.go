@@ -25,7 +25,8 @@ var query struct {
 }
 
 type ViewMilestoneConfig struct {
-	Web bool
+	Repo string
+	Web  bool
 }
 
 type ViewMilestone struct {
@@ -37,7 +38,7 @@ func NewViewMilestone(config ViewMilestoneConfig) *ViewMilestone {
 }
 
 func (vm ViewMilestone) Execute(number int) error {
-	repoInfo, err := gh.RetrieveRepoInformation()
+	repoInfo, err := gh.RetrieveRepoInformation(vm.config.Repo)
 
 	if err != nil {
 		return err

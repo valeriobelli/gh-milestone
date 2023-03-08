@@ -26,10 +26,12 @@ func newViewCommand() *cobra.Command {
 
 			milestoneNumber, _ := strconv.Atoi(args[0])
 
+			repo, _ := command.Parent().PersistentFlags().GetString("repo")
 			web, _ := command.Flags().GetBool("web")
 
 			return view.NewViewMilestone(view.ViewMilestoneConfig{
-				Web: web,
+				Repo: repo,
+				Web:  web,
 			}).Execute(milestoneNumber)
 		},
 		Args: func(command *cobra.Command, args []string) error {

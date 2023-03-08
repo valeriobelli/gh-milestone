@@ -13,6 +13,7 @@ import (
 
 type DeleteMilestoneConfig struct {
 	Confirm bool
+	Repo    string
 }
 
 type DeleteMilestone struct {
@@ -24,7 +25,7 @@ func NewDeleteMilestone(config DeleteMilestoneConfig) *DeleteMilestone {
 }
 
 func (em DeleteMilestone) Execute(number int) error {
-	repoInfo, err := gh.RetrieveRepoInformation()
+	repoInfo, err := gh.RetrieveRepoInformation(em.config.Repo)
 
 	if err != nil {
 		return err

@@ -15,6 +15,7 @@ import (
 type EditMilestoneConfig struct {
 	Description *string
 	DueDate     *time.Time
+	Repo        string
 	State       *string
 	Title       *string
 }
@@ -28,7 +29,7 @@ func NewEditMilestone(config EditMilestoneConfig) *EditMilestone {
 }
 
 func (em EditMilestone) Execute(number int) error {
-	repoInfo, err := gh.RetrieveRepoInformation()
+	repoInfo, err := gh.RetrieveRepoInformation(em.config.Repo)
 
 	if err != nil {
 		return err

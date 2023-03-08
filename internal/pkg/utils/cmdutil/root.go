@@ -47,6 +47,11 @@ func HelpFunction(command *cobra.Command, args []string) {
 	bold.Println("FLAGS")
 	fmt.Print(command.LocalFlags().FlagUsages())
 
+	fmt.Println()
+
+	bold.Println("INHERITED FLAGS")
+	fmt.Print(command.InheritedFlags().FlagUsages())
+
 	if command.Example != "" {
 		fmt.Println()
 		bold.Println("EXAMPLES")

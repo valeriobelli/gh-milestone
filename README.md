@@ -36,6 +36,9 @@ gh milestone ls
 # List closed Milestones
 gh milestone list --state closed
 
+# List milestones of specific repo
+gh milestone list --repo valeriobelli/foo-bar
+
 # Search by a pattern
 gh milestone list --query "Foo bar"
 
@@ -54,12 +57,15 @@ gh milestone list --json id,progressPercentage --json number --jq ".[0].id"
 
 ```bash
 gh milestone edit <milestone number> --title "New title"
+gh milestone edit <milestone number> --title "New title" --repo valeriobelli/foo-bar
 ```
 
 ### View a milestone
 
 ```bash
 gh milestone view <milestone number>
+
+gh milestone view <milestone number> --repo valeriobelli/foo-bar
 ```
 
 ### Delete milestone
@@ -70,4 +76,5 @@ gh milestone delete <milestone number>
 
 # Automatic
 gh milestone delete <milestone number> --confirm
+gh milestone delete <milestone number> --confirm --repo valeriobelli/foo-bar
 ```
