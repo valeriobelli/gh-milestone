@@ -1,5 +1,12 @@
 # gh-milestone
 
+## 2.0.1
+
+### Patch Changes
+
+- Consider timezone when setting the Due date. Resolves [#19](https://github.com/valeriobelli/gh-milestone/issues/19).
+- Remove unwanted white foreground color when printing a Milestone's status. Resolves [#20](https://github.com/valeriobelli/gh-milestone/issues/20).
+
 ## 2.0.0
 
 ### Major Changes
