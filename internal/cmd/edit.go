@@ -45,6 +45,7 @@ func newEditCommand() *cobra.Command {
 			description := description.GetValue()
 			state := state.GetValue()
 			title := title.GetValue()
+			repo, _ := command.Parent().PersistentFlags().GetString("repo")
 
 			if dueDate == nil && description == nil && state == nil && title == nil {
 				fmt.Println("Nothing to edit, exiting.")
@@ -55,6 +56,7 @@ func newEditCommand() *cobra.Command {
 			return edit.NewEditMilestone(edit.EditMilestoneConfig{
 				Description: description,
 				DueDate:     dueDate,
+				Repo:        repo,
 				State:       state,
 				Title:       title,
 			}).Execute(milestoneNumber)

@@ -40,6 +40,7 @@ type ListMilestonesConfig struct {
 	OrderBy MilestonesOrderBy
 	Json    []string
 	Query   string
+	Repo    string
 	State   string
 }
 
@@ -52,7 +53,7 @@ func NewListMilestones(config ListMilestonesConfig) *ListMilestones {
 }
 
 func (l ListMilestones) Execute() error {
-	repoInfo, err := gh.RetrieveRepoInformation()
+	repoInfo, err := gh.RetrieveRepoInformation(l.config.Repo)
 
 	if err != nil {
 		return err

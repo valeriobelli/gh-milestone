@@ -42,10 +42,12 @@ func newCreateCommand() *cobra.Command {
 
 			description, _ := command.Flags().GetString("description")
 			title, _ := command.Flags().GetString("title")
+			repo, _ := command.Parent().PersistentFlags().GetString("repo")
 
 			return create.NewCreateMilestone(create.CreateMilestoneConfig{
 				Description: description,
 				DueDate:     dueDate,
+				Repo:        repo,
 				Title:       title,
 			}).Execute()
 		},

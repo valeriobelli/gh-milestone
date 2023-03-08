@@ -33,6 +33,7 @@ func Execute() {
 	rootCommand.SetUsageFunc(cmdutil.UsageFunction)
 
 	rootCommand.Flags().BoolP("version", "v", false, "Print the version of this extension")
+	rootCommand.PersistentFlags().StringP("repo", "R", "", "Select another repository using the [HOST/]OWNER/REPO format")
 
 	rootCommand.AddCommand(newCreateCommand())
 	rootCommand.AddCommand(newDeleteCommand())

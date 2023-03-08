@@ -15,6 +15,7 @@ import (
 type CreateMilestoneConfig struct {
 	Description string
 	DueDate     *time.Time
+	Repo        string
 	Title       string
 }
 
@@ -27,7 +28,7 @@ func NewCreateMilestone(config CreateMilestoneConfig) *CreateMilestone {
 }
 
 func (cm CreateMilestone) Execute() error {
-	repoInfo, err := gh.RetrieveRepoInformation()
+	repoInfo, err := gh.RetrieveRepoInformation(cm.config.Repo)
 
 	if err != nil {
 		return err

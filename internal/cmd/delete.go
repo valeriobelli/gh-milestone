@@ -27,9 +27,11 @@ func newDeleteCommand() *cobra.Command {
 			milestoneId, _ := strconv.Atoi(args[0])
 
 			confirm, _ := command.Flags().GetBool("confirm")
+			repo, _ := command.Parent().PersistentFlags().GetString("repo")
 
 			return delete.NewDeleteMilestone(delete.DeleteMilestoneConfig{
 				Confirm: confirm,
+				Repo:    repo,
 			}).Execute(milestoneId)
 		},
 		Args: func(command *cobra.Command, args []string) error {

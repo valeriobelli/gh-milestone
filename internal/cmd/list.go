@@ -84,6 +84,7 @@ func newListCommand() *cobra.Command {
 			jsonFields, _ := command.Flags().GetStringSlice("json")
 			query, _ := command.Flags().GetString("query")
 			jq, _ := command.Flags().GetString("jq")
+			repo, _ := command.Parent().PersistentFlags().GetString("repo")
 
 			return list.NewListMilestones(list.ListMilestonesConfig{
 				Query: query,
@@ -94,6 +95,7 @@ func newListCommand() *cobra.Command {
 				First: first,
 				Jq:    jq,
 				Json:  jsonFields,
+				Repo:  repo,
 				State: strings.ToUpper(state.String()),
 			}).Execute()
 		},
