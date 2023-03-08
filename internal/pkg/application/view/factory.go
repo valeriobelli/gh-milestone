@@ -96,8 +96,6 @@ func (vm ViewMilestone) openUrl(milestone github_entities.Milestone) error {
 }
 
 func (vm ViewMilestone) printConsole(milestone github_entities.Milestone) error {
-	color.Set(color.FgHiWhite)
-
 	fmt.Print(milestone.Title)
 	fmt.Print(" ")
 
@@ -114,8 +112,6 @@ func (vm ViewMilestone) printConsole(milestone github_entities.Milestone) error 
 	fmt.Print(" - ")
 
 	fmt.Printf("%d%% complete\n", int(milestone.ProgressPercentage))
-
-	color.Set(color.FgWhite)
 
 	if milestone.DueOn != "" {
 		parsedTime, err := time.Parse(time.RFC3339, milestone.DueOn)
