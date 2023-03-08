@@ -36,7 +36,9 @@ var MilestoneFields = []string{
 type DueDate struct{ time.Time }
 
 func NewDueDate(dueDate string) (*DueDate, error) {
-	parsedDueDate, err := time.Parse(constants.DateFormat, dueDate)
+	currentTime := time.Now()
+
+	parsedDueDate, err := time.ParseInLocation(constants.DateFormat, dueDate, currentTime.Location())
 
 	if err != nil {
 		return nil, fmt.Errorf("due date %s is not respecting the format %s", dueDate, constants.DateFormat)
