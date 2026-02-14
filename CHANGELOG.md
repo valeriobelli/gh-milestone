@@ -1,5 +1,20 @@
 # gh-milestone
 
+## 2.2.0
+
+### Minor Changes
+
+- Add `--all` flag to `list` subcommand to retrieve all milestones via cursor-based pagination, bypassing the 100-item limit. Resolves [#27](https://github.com/valeriobelli/gh-milestone/issues/27).
+- Add `openIssues` and `closedIssues` JSON fields to `list` subcommand output. Resolves [#31](https://github.com/valeriobelli/gh-milestone/issues/31).
+- Add `TITLE` and `ISSUES` as `--orderBy.field` options with client-side sorting. Resolves [#13](https://github.com/valeriobelli/gh-milestone/issues/13).
+- Support `gh config set editor` for editor resolution in interactive mode.
+
+### Patch Changes
+
+- Remove debug output that corrupted JSON when using `--repo`. Resolves [#30](https://github.com/valeriobelli/gh-milestone/issues/30).
+- Remove hardcoded `--wait` flag from editor invocation. Resolves [#32](https://github.com/valeriobelli/gh-milestone/issues/32).
+- Upgrade dependencies to resolve all known vulnerabilities (`go-gh` v2, `go-github` v68, inline `surveyext` editor package).
+
 ## 2.1.0
 
 ### Minor Changes
