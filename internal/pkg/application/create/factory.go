@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"time"
 
-	ghub "github.com/google/go-github/v44/github"
+	ghub "github.com/google/go-github/v68/github"
 	"github.com/valeriobelli/gh-milestone/internal/pkg/infrastructure/gh"
 	"github.com/valeriobelli/gh-milestone/internal/pkg/infrastructure/github"
 	"github.com/valeriobelli/gh-milestone/internal/pkg/infrastructure/http"
@@ -66,7 +66,7 @@ func (cm CreateMilestone) Execute() error {
 		repoInfo.Name,
 		&ghub.Milestone{
 			Description: &answers.Description,
-			DueOn:       answers.getTime(),
+			DueOn:       toTimestamp(answers.getTime()),
 			Title:       &answers.Title,
 		},
 	)
@@ -84,4 +84,12 @@ func (cm CreateMilestone) Execute() error {
 	fmt.Println(milestone.GetHTMLURL())
 
 	return nil
+}
+
+func toTimestamp(t *time.Time) *ghub.Timestamp {
+	if t == nil {
+		return nil
+	}
+
+	return &ghub.Timestamp{Time: *t}
 }

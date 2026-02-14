@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"time"
 
-	ghub "github.com/google/go-github/v44/github"
+	ghub "github.com/google/go-github/v68/github"
 	"github.com/valeriobelli/gh-milestone/internal/pkg/infrastructure/gh"
 	"github.com/valeriobelli/gh-milestone/internal/pkg/infrastructure/github"
 	"github.com/valeriobelli/gh-milestone/internal/pkg/infrastructure/http"
@@ -48,7 +48,7 @@ func (em EditMilestone) Execute(number int) error {
 		number,
 		&ghub.Milestone{
 			Description: em.config.Description,
-			DueOn:       em.config.DueDate,
+			DueOn:       toTimestamp(em.config.DueDate),
 			State:       em.config.State,
 			Title:       em.config.Title,
 		},
@@ -63,4 +63,12 @@ func (em EditMilestone) Execute(number int) error {
 	fmt.Println(*milestone.HTMLURL)
 
 	return nil
+}
+
+func toTimestamp(t *time.Time) *ghub.Timestamp {
+	if t == nil {
+		return nil
+	}
+
+	return &ghub.Timestamp{Time: *t}
 }

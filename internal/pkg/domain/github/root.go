@@ -7,25 +7,35 @@ import (
 	"github.com/valeriobelli/gh-milestone/internal/pkg/domain/constants"
 )
 
+type MilestoneIssueCount struct {
+	TotalCount int `json:"totalCount"`
+}
+
 type Milestone struct {
-	Closed             bool    `json:"closed"`
-	Description        string  `json:"description"`
-	DueOn              string  `json:"dueOn"`
-	Id                 string  `json:"id"`
-	Number             int     `json:"number"`
-	ProgressPercentage float64 `json:"progressPercentage"`
-	State              string  `json:"state"`
-	Title              string  `json:"title"`
-	UpdatedAt          string  `json:"updatedAt"`
-	Url                string  `json:"url"`
+	Closed             bool                  `json:"closed"`
+	ClosedIssues       MilestoneIssueCount   `json:"closedIssues" graphql:"closedIssues: issues(states: CLOSED)"`
+	Description        string                `json:"description"`
+	DueOn              string                `json:"dueOn"`
+	Id                 string                `json:"id"`
+	Issues             MilestoneIssueCount   `json:"issues"`
+	Number             int                   `json:"number"`
+	OpenIssues         MilestoneIssueCount   `json:"openIssues" graphql:"openIssues: issues(states: OPEN)"`
+	ProgressPercentage float64               `json:"progressPercentage"`
+	State              string                `json:"state"`
+	Title              string                `json:"title"`
+	UpdatedAt          string                `json:"updatedAt"`
+	Url                string                `json:"url"`
 }
 
 var MilestoneFields = []string{
 	"closed",
+	"closedIssues",
 	"description",
 	"dueOn",
 	"id",
+	"issues",
 	"number",
+	"openIssues",
 	"progressPercentage",
 	"state",
 	"title",

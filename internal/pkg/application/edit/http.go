@@ -6,7 +6,7 @@ import (
 	"fmt"
 	"io"
 
-	"github.com/google/go-github/v44/github"
+	"github.com/google/go-github/v68/github"
 )
 
 func handleResponseError(response *github.Response) error {

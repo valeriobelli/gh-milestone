@@ -29,8 +29,6 @@ func extractRepoInformationFromRepoString(repoString string) (*RepoInfo, error) 
 		return nil, fmt.Errorf("the repo option \"%s\" does not respect the format [HOST/]OWNER/REPO", repoString)
 	}
 
-	fmt.Printf("%v", subStr)
-
 	return &RepoInfo{
 		Name:  subStr[2],
 		Owner: subStr[1],

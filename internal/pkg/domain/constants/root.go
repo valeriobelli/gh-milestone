@@ -36,10 +36,12 @@ var JoinedOrderByDirections = prepareForDocUsage(OrderByDirections)
 const (
 	OrderByFieldCreatedAt string = "CREATED_AT"
 	OrderByFieldDueDate   string = "DUE_DATE"
+	OrderByFieldIssues    string = "ISSUES"
 	OrderByFieldNumber    string = "NUMBER"
+	OrderByFieldTitle     string = "TITLE"
 	OrderByFieldUpdatedAt string = "UPDATED_AT"
 )
 
-var OrderByFields = []string{OrderByFieldCreatedAt, OrderByFieldDueDate, OrderByFieldNumber, OrderByFieldUpdatedAt}
+var OrderByFields = []string{OrderByFieldCreatedAt, OrderByFieldDueDate, OrderByFieldIssues, OrderByFieldNumber, OrderByFieldTitle, OrderByFieldUpdatedAt}
 
 var JoinedOrderByFields = prepareForDocUsage(OrderByFields)

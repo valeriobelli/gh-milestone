@@ -1,12 +1,11 @@
 package create
 
 import (
-	"os"
 	"time"
 
 	"github.com/AlecAivazis/survey/v2"
-	"github.com/cli/cli/v2/pkg/surveyext"
 	"github.com/valeriobelli/gh-milestone/internal/pkg/domain/github"
+	"github.com/valeriobelli/gh-milestone/internal/pkg/infrastructure/editor"
 )
 
 type SurveyAnswers struct {
@@ -59,13 +58,12 @@ func NewSurvey(flags Flags) *Survey {
 	if flags.Description == "" && requiredFieldsAreEmpty {
 		questions = append(questions, &survey.Question{
 			Name: "description",
-			Prompt: &surveyext.GhEditor{
+			Prompt: &editor.GhEditor{
 				BlankAllowed: true,
 				Editor: &survey.Editor{
 					FileName: "*.md",
 					Message:  "Description",
 				},
-				EditorCommand: os.Getenv("EDITOR") + " --wait",
 			},
 		})
 	}

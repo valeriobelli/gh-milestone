@@ -6,6 +6,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"os"
+	"sort"
 	"strings"
 
 	"github.com/fatih/color"
@@ -24,8 +25,12 @@ import (
 var query struct {
 	Repository struct {
 		Milestones struct {
-			Nodes []github_entities.Milestone
-		} `graphql:"milestones(first: $first, orderBy: $orderBy, query: $query, states: $states)"`
+			Nodes    []github_entities.Milestone
+			PageInfo struct {
+				HasNextPage bool
+				EndCursor   githubv4.String
+			}
+		} `graphql:"milestones(first: $first, after: $after, orderBy: $orderBy, query: $query, states: $states)"`
 	} `graphql:"repository(name: $name, owner: $owner)"`
 }
 
@@ -35,6 +40,7 @@ type MilestonesOrderBy struct {
 }
 
 type ListMilestonesConfig struct {
+	All     bool
 	First   int
 	Jq      string
 	OrderBy MilestonesOrderBy
@@ -52,6 +58,8 @@ func NewListMilestones(config ListMilestonesConfig) *ListMilestones {
 	return &ListMilestones{config: config}
 }
 
+const maxPageSize = 100
+
 func (l ListMilestones) Execute() error {
 	repoInfo, err := gh.RetrieveRepoInformation(l.config.Repo)
 
@@ -65,31 +73,112 @@ func (l ListMilestones) Execute() error {
 
 	spinner.Start()
 
-	err = client.Query(context.Background(), &query, map[string]interface{}{
-		"first": githubv4.Int(l.config.First),
-		"name":  githubv4.String(strings.TrimSpace(repoInfo.Name)),
-		"orderBy": githubv4.MilestoneOrder{
-			Direction: githubv4.OrderDirection(strings.ToUpper(l.config.OrderBy.Direction)),
-			Field:     githubv4.MilestoneOrderField(strings.ToUpper(l.config.OrderBy.Field)),
-		},
-		"owner":  githubv4.String(strings.TrimSpace(repoInfo.Owner)),
-		"query":  githubv4.String(l.config.Query),
-		"states": l.getStates(),
-	})
+	apiOrderBy := l.getApiOrderBy()
+
+	var allMilestones []github_entities.Milestone
+	var cursor *githubv4.String
+	remaining := l.config.First
+
+	for {
+		pageSize := maxPageSize
+		if !l.config.All && remaining < pageSize {
+			pageSize = remaining
+		}
+
+		variables := map[string]interface{}{
+			"first": githubv4.Int(pageSize),
+			"after": cursor,
+			"name":  githubv4.String(strings.TrimSpace(repoInfo.Name)),
+			"orderBy": githubv4.MilestoneOrder{
+				Direction: githubv4.OrderDirection(strings.ToUpper(apiOrderBy.Direction)),
+				Field:     githubv4.MilestoneOrderField(strings.ToUpper(apiOrderBy.Field)),
+			},
+			"owner":  githubv4.String(strings.TrimSpace(repoInfo.Owner)),
+			"query":  githubv4.String(l.config.Query),
+			"states": l.getStates(),
+		}
+
+		err = client.Query(context.Background(), &query, variables)
+
+		if err != nil {
+			spinner.Stop()
+			return err
+		}
+
+		allMilestones = append(allMilestones, query.Repository.Milestones.Nodes...)
+
+		if !query.Repository.Milestones.PageInfo.HasNextPage {
+			break
+		}
+
+		if !l.config.All {
+			remaining -= len(query.Repository.Milestones.Nodes)
+			if remaining <= 0 {
+				break
+			}
+		}
+
+		endCursor := query.Repository.Milestones.PageInfo.EndCursor
+		cursor = &endCursor
+	}
 
 	spinner.Stop()
 
-	if err != nil {
-		return err
-	}
+	milestones := allMilestones
 
-	milestones := query.Repository.Milestones.Nodes
+	if l.needsClientSideSort() {
+		milestones = l.sortMilestones(milestones)
+	}
 
 	if len(l.config.Json) > 0 {
 		return l.printMilestonesAsJson(l.config.Json, milestones)
 	}
 
 	return l.printMilestonesAsTable(milestones)
+}
+
+func (l ListMilestones) needsClientSideSort() bool {
+	field := strings.ToUpper(l.config.OrderBy.Field)
+
+	return field == constants.OrderByFieldTitle || field == constants.OrderByFieldIssues
+}
+
+func (l ListMilestones) getApiOrderBy() MilestonesOrderBy {
+	if l.needsClientSideSort() {
+		return MilestonesOrderBy{
+			Direction: constants.OrderByDirectionAsc,
+			Field:     constants.OrderByFieldNumber,
+		}
+	}
+
+	return l.config.OrderBy
+}
+
+func (l ListMilestones) sortMilestones(milestones []github_entities.Milestone) []github_entities.Milestone {
+	sorted := make([]github_entities.Milestone, len(milestones))
+	copy(sorted, milestones)
+
+	ascending := strings.ToUpper(l.config.OrderBy.Direction) != constants.OrderByDirectionDesc
+	field := strings.ToUpper(l.config.OrderBy.Field)
+
+	sort.Slice(sorted, func(i, j int) bool {
+		switch field {
+		case constants.OrderByFieldIssues:
+			if ascending {
+				return sorted[i].Issues.TotalCount < sorted[j].Issues.TotalCount
+			}
+
+			return sorted[i].Issues.TotalCount > sorted[j].Issues.TotalCount
+		default:
+			if ascending {
+				return strings.ToLower(sorted[i].Title) < strings.ToLower(sorted[j].Title)
+			}
+
+			return strings.ToLower(sorted[i].Title) > strings.ToLower(sorted[j].Title)
+		}
+	})
+
+	return sorted
 }
 
 func (l ListMilestones) printMilestonesAsTable(milestones []github_entities.Milestone) error {

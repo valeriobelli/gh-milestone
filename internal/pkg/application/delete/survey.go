@@ -5,7 +5,7 @@ import (
 	"strconv"
 
 	"github.com/AlecAivazis/survey/v2"
-	ghub "github.com/google/go-github/v44/github"
+	ghub "github.com/google/go-github/v68/github"
 )
 
 type SurveyAnswers struct {

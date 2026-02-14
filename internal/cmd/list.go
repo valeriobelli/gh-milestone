@@ -35,6 +35,9 @@ func newListCommand() *cobra.Command {
 			Get first ten milestones
 			$ gh milestone list --first 10
 
+			Get all milestones
+			$ gh milestone list --all
+
 			Print milestones as JSON
 			$ gh milestone list --json id
 			$ gh milestone list --json id,progressPercentage --json number
@@ -50,10 +53,14 @@ func newListCommand() *cobra.Command {
 			This command permit to print the output as a JSON string and interact with this latter using jq.
 		`),
 		PreRunE: func(command *cobra.Command, args []string) error {
-			if value, err := command.Flags().GetInt("first"); err != nil {
-				return err
-			} else if value < 1 {
-				return fmt.Errorf("invalid value for --first: %v", value)
+			all, _ := command.Flags().GetBool("all")
+
+			if !all {
+				if value, err := command.Flags().GetInt("first"); err != nil {
+					return err
+				} else if value < 1 {
+					return fmt.Errorf("invalid value for --first: %v", value)
+				}
 			}
 
 			json := command.Flags().Lookup("json")
@@ -80,6 +87,7 @@ func newListCommand() *cobra.Command {
 			return nil
 		},
 		RunE: func(command *cobra.Command, args []string) error {
+			all, _ := command.Flags().GetBool("all")
 			first, _ := command.Flags().GetInt("first")
 			jsonFields, _ := command.Flags().GetStringSlice("json")
 			query, _ := command.Flags().GetString("query")
@@ -87,6 +95,7 @@ func newListCommand() *cobra.Command {
 			repo, _ := command.Parent().PersistentFlags().GetString("repo")
 
 			return list.NewListMilestones(list.ListMilestonesConfig{
+				All:   all,
 				Query: query,
 				OrderBy: list.MilestonesOrderBy{
 					Direction: strings.ToUpper(orderByDirection.String()),
@@ -120,6 +129,7 @@ func newListCommand() *cobra.Command {
 		return err
 	})
 
+	listCommand.Flags().BoolP("all", "a", false, "Retrieve all milestones")
 	listCommand.Flags().IntP("first", "f", 100, "View the first N elements from the list")
 	listCommand.Flags().VarP(
 		state,

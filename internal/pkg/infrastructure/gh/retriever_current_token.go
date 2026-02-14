@@ -2,7 +2,8 @@ package gh
 
 import (
 	"os"
-	"strings"
+
+	"github.com/cli/go-gh/v2/pkg/auth"
 )
 
 func RetrieveCurrentToken() string {
@@ -16,11 +17,7 @@ func RetrieveCurrentToken() string {
 		return env_host
 	}
 
-	token, err := Execute([]string{"config", "get", "-h", getHost(), "oauth_token"})
+	token, _ := auth.TokenForHost(getHost())
 
-	if err != nil {
-		return ""
-	}
-
-	return strings.TrimRight(token, "\n")
+	return token
 }

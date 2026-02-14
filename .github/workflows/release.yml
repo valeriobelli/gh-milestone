@@ -1,8 +1,10 @@
 name: release
+
 on:
   push:
     tags:
       - "v*"
+
 permissions:
   contents: write
 
@@ -10,13 +12,18 @@ jobs:
   release:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v2
-      - id: import_gpg
-        uses: crazy-max/ghaction-import-gpg@v4
+      - name: Checkout code
+        uses: actions/checkout@v6
+
+      - name: Import GPG key
+        id: import_gpg
+        uses: crazy-max/ghaction-import-gpg@v6
         with:
           gpg_private_key: ${{ secrets.GPG_PRIVATE_KEY }}
           passphrase: ${{ secrets.GPG_PASSPHRASE }}
-      - uses: cli/gh-extension-precompile@v1
+
+      - name: Precompile GH extension
+        uses: cli/gh-extension-precompile@v2
         with:
-          go_version: "1.18"
+          go_version_file: "go.mod"
           gpg_fingerprint: ${{ steps.import_gpg.outputs.fingerprint }}
