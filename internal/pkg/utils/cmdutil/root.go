@@ -29,13 +29,13 @@ func HelpFunction(command *cobra.Command, args []string) {
 	fmt.Println(getCommandDescription())
 	fmt.Println()
 
-	bold.Println("USAGE")
+	_, _ = bold.Println("USAGE")
 	fmt.Printf("  gh %s\n\n", command.UseLine())
 
 	commands := command.Commands()
 
 	if len(commands) > 0 {
-		bold.Println("CORE COMMANDS")
+		_, _ = bold.Println("CORE COMMANDS")
 
 		for _, command := range commands {
 			fmt.Printf("  %s%s\n", rpad(command.Name()+":", 12), command.Short)
@@ -44,17 +44,17 @@ func HelpFunction(command *cobra.Command, args []string) {
 		fmt.Println()
 	}
 
-	bold.Println("FLAGS")
+	_, _ = bold.Println("FLAGS")
 	fmt.Print(command.LocalFlags().FlagUsages())
 
 	fmt.Println()
 
-	bold.Println("INHERITED FLAGS")
+	_, _ = bold.Println("INHERITED FLAGS")
 	fmt.Print(command.InheritedFlags().FlagUsages())
 
 	if command.Example != "" {
 		fmt.Println()
-		bold.Println("EXAMPLES")
+		_, _ = bold.Println("EXAMPLES")
 		fmt.Println(
 			strings.Join(
 				slices.Map(

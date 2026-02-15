@@ -112,40 +112,7 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 
 			return m, tea.Quit
 		case tea.KeyEnter:
-			switch m.step {
-			case stepDescription:
-				m.nextStep()
-
-				return m, nil
-			case stepConfirm:
-				val := strings.ToLower(strings.TrimSpace(m.textInput.Value()))
-
-				if val == "y" || val == "yes" {
-					m.answers.Confirm = true
-				} else {
-					m.answers.Confirm = false
-				}
-
-				m.step = stepDone
-
-				return m, tea.Quit
-			}
-
-			// Validate and move next
-			if err := m.validateCurrentStep(); err != nil {
-				m.err = err
-
-				return m, nil
-			}
-
-			m.err = nil
-			m.commitValue()
-			m.nextStep()
-
-			if m.step == stepDone {
-				return m, tea.Quit
-			}
-			return m, nil
+			return m.handleKeyEnter()
 		case tea.KeyRunes:
 			if m.step == stepDescription && msg.String() == "e" {
 				return m, m.openEditor
@@ -293,4 +260,42 @@ func (s Survey) Ask() (SurveyAnswers, error) {
 	}
 
 	return finalModel.answers, nil
+}
+
+func (m model) handleKeyEnter() (tea.Model, tea.Cmd) {
+	switch m.step {
+	case stepDescription:
+		m.nextStep()
+
+		return m, nil
+	case stepConfirm:
+		val := strings.ToLower(strings.TrimSpace(m.textInput.Value()))
+
+		if val == "y" || val == "yes" {
+			m.answers.Confirm = true
+		} else {
+			m.answers.Confirm = false
+		}
+
+		m.step = stepDone
+
+		return m, tea.Quit
+	}
+
+	// Validate and move next
+	if err := m.validateCurrentStep(); err != nil {
+		m.err = err
+
+		return m, nil
+	}
+
+	m.err = nil
+	m.commitValue()
+	m.nextStep()
+
+	if m.step == stepDone {
+		return m, tea.Quit
+	}
+
+	return m, nil
 }

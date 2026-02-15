@@ -80,7 +80,8 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 func (m model) View() string {
 	return fmt.Sprintf(
 		"You're going to delete milestone #%d (%s). This action cannot be reversed. To confirm, type the milestone number:\n\n%s\n\n(esc to quit)",
-		*m.milestone.Number, *m.milestone.Title,
+		*m.milestone.Number,
+		*m.milestone.Title,
 		m.textInput.View(),
 	)
 }

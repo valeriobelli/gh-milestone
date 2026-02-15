@@ -51,7 +51,7 @@ func Evaluate(input io.Reader, output io.Writer, expr string) error {
 		}
 
 		if text, e := jsonScalarToString(v); e == nil {
-			_, err := fmt.Fprintln(output, text)
+			_, err = fmt.Fprintln(output, text)
 			if err != nil {
 				return err
 			}
