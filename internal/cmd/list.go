@@ -48,7 +48,7 @@ func newListCommand() *cobra.Command {
 		Long: heredoc.Doc(
 			`List the available milestones on Github. 
 	
-			Optionally, the Milestones can be filtered by a search string and status and ordered by some criterias.
+			Optionally, the Milestones can be filtered by a search string and status and ordered by some criteria.
 
 			This command permit to print the output as a JSON string and interact with this latter using jq.
 		`),
@@ -72,7 +72,7 @@ func newListCommand() *cobra.Command {
 						command.SilenceUsage = true
 
 						return fmt.Errorf(
-							"Unknown JSON field: %q\nAvailable fields:\n  %s",
+							"unknown JSON field: %q\nAvailable fields:\n  %s",
 							field,
 							strings.Join(github.MilestoneFields, "\n  "),
 						)
@@ -117,7 +117,7 @@ func newListCommand() *cobra.Command {
 			sort.Strings(github.MilestoneFields)
 
 			return fmt.Errorf(
-				"Specify one or more comma-separated fields for `--json`:\n  %s",
+				"specify one or more comma-separated fields for `--json`:\n  %s",
 				strings.Join(github.MilestoneFields, "\n  "),
 			)
 		}

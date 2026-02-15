@@ -40,14 +40,18 @@ func Evaluate(input io.Reader, output io.Writer, expr string) error {
 	iter := code.Run(responseData)
 	for {
 		v, ok := iter.Next()
+
 		if !ok {
 			break
 		}
+
+		// nolint:govet
 		if err, isErr := v.(error); isErr {
 			return err
 		}
+
 		if text, e := jsonScalarToString(v); e == nil {
-			_, err := fmt.Fprintln(output, text)
+			_, err = fmt.Fprintln(output, text)
 			if err != nil {
 				return err
 			}

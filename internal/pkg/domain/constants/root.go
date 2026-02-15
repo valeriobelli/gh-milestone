@@ -42,6 +42,13 @@ const (
 	OrderByFieldUpdatedAt string = "UPDATED_AT"
 )
 
-var OrderByFields = []string{OrderByFieldCreatedAt, OrderByFieldDueDate, OrderByFieldIssues, OrderByFieldNumber, OrderByFieldTitle, OrderByFieldUpdatedAt}
+var OrderByFields = []string{
+	OrderByFieldCreatedAt,
+	OrderByFieldDueDate,
+	OrderByFieldIssues,
+	OrderByFieldNumber,
+	OrderByFieldTitle,
+	OrderByFieldUpdatedAt,
+}
 
 var JoinedOrderByFields = prepareForDocUsage(OrderByFields)

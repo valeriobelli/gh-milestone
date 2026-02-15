@@ -34,7 +34,8 @@ func Execute() {
 
 	rootCommand.Flags().BoolP("version", "v", false, "Print the version of this extension")
 	rootCommand.PersistentFlags().BoolP("help", "h", false, "Show help for command")
-	rootCommand.PersistentFlags().StringP("repo", "R", "", "Select another repository using the [HOST/]OWNER/REPO format")
+	rootCommand.PersistentFlags().
+		StringP("repo", "R", "", "Select another repository using the [HOST/]OWNER/REPO format")
 
 	rootCommand.AddCommand(newCreateCommand())
 	rootCommand.AddCommand(newDeleteCommand())

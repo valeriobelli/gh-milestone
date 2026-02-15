@@ -11,7 +11,6 @@ import (
 
 	"github.com/fatih/color"
 	"github.com/shurcooL/githubv4"
-
 	"github.com/valeriobelli/gh-milestone/internal/pkg/domain/constants"
 	github_entities "github.com/valeriobelli/gh-milestone/internal/pkg/domain/github"
 	"github.com/valeriobelli/gh-milestone/internal/pkg/infrastructure/gh"

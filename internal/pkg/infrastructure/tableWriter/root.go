@@ -44,10 +44,6 @@ func (c TableWriterConfig) getColumnSeparator() string {
 
 func (c TableWriterConfig) getHeader() []string {
 	if c.Header == nil {
-		headerLine := false
-
-		c.HeaderLine = &headerLine
-
 		return []string{""}
 	}
 
