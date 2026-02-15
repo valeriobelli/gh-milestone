@@ -91,7 +91,9 @@ func (vm ViewMilestone) openUrl(milestone github_entities.Milestone) error {
 
 	args = append(args, milestone.Url)
 
-	exec.Command(cmd, args...).Start()
+	if err := exec.Command(cmd, args...).Start(); err != nil {
+		return err
+	}
 
 	return nil
 }

@@ -10,7 +10,9 @@ import (
 )
 
 func handleResponseError(response *github.Response) error {
-	defer response.Body.Close()
+	if err := response.Body.Close(); err != nil {
+		return err
+	}
 
 	body, err := io.ReadAll(response.Body)
 
@@ -34,18 +36,19 @@ func handleResponseError(response *github.Response) error {
 		for _, e := range errorResponse.Errors {
 			switch e.Code {
 			case "missing":
-				return errors.New(fmt.Sprintf("The requested milestone does not esist."))
+				return errors.New(fmt.Sprintf("The requested milestone does not esist"))
 			case "missing_field":
-				return errors.New(fmt.Sprintf("The required field \"%s\" has not been set.", e.Field))
+				return errors.New(fmt.Sprintf("The required field \"%s\" has not been set", e.Field))
 			case "invalid":
-				return errors.New(fmt.Sprintf("The content set in the field \"%s\" is invalid.", e.Field))
+				return errors.New(fmt.Sprintf("The content set in the field \"%s\" is invalid", e.Field))
 			case "already_exists":
-				return errors.New("The milestone with the same title already exists.")
+				return errors.New("The milestone with the same title already exists")
 			case "unprocessable":
-				return errors.New("The data sent was unprocessable.")
+				return errors.New("The data sent was unprocessable")
 			case "custom":
 				return errors.New(e.Message)
 			default:
+				// nolint:ST1005
 				return errors.New("Unknown error")
 			}
 		}

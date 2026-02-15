@@ -10,7 +10,9 @@ import (
 )
 
 func handleResponseError(response *github.Response) error {
-	defer response.Body.Close()
+	if err := response.Body.Close(); err != nil {
+		return err
+	}
 
 	body, err := io.ReadAll(response.Body)
 

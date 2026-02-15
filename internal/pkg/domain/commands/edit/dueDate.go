@@ -34,7 +34,6 @@ func (flag *dueDateFlag) GetValue() (*time.Time, error) {
 	}
 
 	return &parsedDate.Time, nil
-
 }
 
 func (flag *dueDateFlag) Set(value string) error {

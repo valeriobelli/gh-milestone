@@ -48,7 +48,7 @@ func newListCommand() *cobra.Command {
 		Long: heredoc.Doc(
 			`List the available milestones on Github. 
 	
-			Optionally, the Milestones can be filtered by a search string and status and ordered by some criterias.
+			Optionally, the Milestones can be filtered by a search string and status and ordered by some criteria.
 
 			This command permit to print the output as a JSON string and interact with this latter using jq.
 		`),

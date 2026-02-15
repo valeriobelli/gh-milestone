@@ -10,15 +10,11 @@ import (
 	shellquote "github.com/kballard/go-shellquote"
 )
 
-type showable interface {
-	Show() error
-}
-
 func needsBom() bool {
 	return runtime.GOOS == "windows"
 }
 
-func editFile(editorCommand, fn, initialValue string, stdin io.Reader, stdout io.Writer, stderr io.Writer, cursor showable) (string, error) {
+func editFile(editorCommand, fn, initialValue string, stdin io.Reader, stdout io.Writer, stderr io.Writer) (string, error) {
 	pattern := fn
 	if pattern == "" {
 		pattern = "survey*.txt"
@@ -62,10 +58,6 @@ func editFile(editorCommand, fn, initialValue string, stdin io.Reader, stdout io
 	cmd.Stdin = stdin
 	cmd.Stdout = stdout
 	cmd.Stderr = stderr
-
-	if cursor != nil {
-		_ = cursor.Show()
-	}
 
 	if err := cmd.Run(); err != nil {
 		return "", err

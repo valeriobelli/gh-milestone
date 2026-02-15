@@ -4,7 +4,8 @@ import (
 	"fmt"
 	"strconv"
 
-	"github.com/AlecAivazis/survey/v2"
+	"github.com/charmbracelet/bubbles/textinput"
+	tea "github.com/charmbracelet/bubbletea"
 	ghub "github.com/google/go-github/v68/github"
 )
 
@@ -18,40 +19,92 @@ type Config struct {
 }
 
 type Survey struct {
-	answers   *SurveyAnswers
-	questions []*survey.Question
+	config Config
 }
 
 func NewSurvey(config Config) *Survey {
-	var questions = []*survey.Question{}
+	return &Survey{config: config}
+}
 
-	if !config.Confirm {
-		questions = append(questions, &survey.Question{
-			Name: "confirm",
-			Prompt: &survey.Input{
-				Message: fmt.Sprintf("You're going to delete milestone #%d (%s). This action cannot be reversed. To confirm, type the milestone number:", *config.Milestone.Number, *config.Milestone.Title),
-			},
-			Transform: func(ans interface{}) (newAns interface{}) {
-				switch milestoneNumber := ans.(type) {
-				case string:
-					return strconv.Itoa(*config.Milestone.Number) == milestoneNumber
-				default:
-					return false
-				}
-			},
-		})
-	}
+type model struct {
+	textInput textinput.Model
+	milestone *ghub.Milestone
+	confirm   bool
+	quitting  bool
+	err       error
+}
 
-	return &Survey{
-		answers: &SurveyAnswers{
-			Confirm: config.Confirm,
-		},
-		questions: questions,
+func initialModel(milestone *ghub.Milestone) model {
+	ti := textinput.New()
+	ti.Focus()
+	ti.CharLimit = 156
+	ti.Width = 20
+
+	return model{
+		textInput: ti,
+		milestone: milestone,
 	}
 }
 
-func (s Survey) Ask() (SurveyAnswers, error) {
-	err := survey.Ask(s.questions, s.answers)
+func (m model) Init() tea.Cmd {
+	return textinput.Blink
+}
 
-	return *s.answers, err
+func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
+	var cmd tea.Cmd
+
+	switch msg := msg.(type) {
+	case tea.KeyMsg:
+		switch msg.Type {
+		case tea.KeyCtrlC, tea.KeyEsc:
+			m.quitting = true
+			m.err = fmt.Errorf("aborted")
+			return m, tea.Quit
+		case tea.KeyEnter:
+			val := m.textInput.Value()
+			expected := strconv.Itoa(*m.milestone.Number)
+			if val == expected {
+				m.confirm = true
+			} else {
+				m.confirm = false
+			}
+			return m, tea.Quit
+		}
+	}
+
+	m.textInput, cmd = m.textInput.Update(msg)
+
+	return m, cmd
+}
+
+func (m model) View() string {
+	return fmt.Sprintf(
+		"You're going to delete milestone #%d (%s). This action cannot be reversed. To confirm, type the milestone number:\n\n%s\n\n(esc to quit)",
+		*m.milestone.Number, *m.milestone.Title,
+		m.textInput.View(),
+	)
+}
+
+func (s Survey) Ask() (SurveyAnswers, error) {
+	if s.config.Confirm {
+		return SurveyAnswers{Confirm: true}, nil
+	}
+
+	p := tea.NewProgram(initialModel(s.config.Milestone))
+	m, err := p.Run()
+
+	if err != nil {
+		return SurveyAnswers{}, err
+	}
+
+	finalModel := m.(model)
+	if finalModel.quitting && finalModel.err != nil {
+		return SurveyAnswers{}, finalModel.err
+	}
+
+	if finalModel.quitting {
+		return SurveyAnswers{}, fmt.Errorf("aborted")
+	}
+
+	return SurveyAnswers{Confirm: finalModel.confirm}, nil
 }
